@@ -29,14 +29,16 @@ export const PRODUCT_SCHEDULE = [
 
 export class ProductPipeline {
   active: Product[] = [];
+  /** Quick play: AI assistant ships live in Q2 so a 3-turn run still shows the AI lesson. */
+  quickLive = false;
 
-  reset() { this.active = []; }
+  reset() { this.active = []; this.quickLive = false; }
 
   tick(turn: number) {
     const events: { type: string; product: Product }[] = [];
     for (const tpl of PRODUCT_SCHEDULE) {
       if (tpl.arrivesTurn === turn && !this.active.find(p => p.id === tpl.id)) {
-        const liveNow = tpl.arrivesTurn === 1;
+        const liveNow = tpl.arrivesTurn === 1 || (this.quickLive && tpl.id === 'aifeature');
         const product: Product = { ...tpl, phase: liveNow ? 4 : 0, launched: liveNow, mitigated: new Set() };
         this.active.push(product);
         events.push({ type: liveNow ? 'product_launched' : 'product_arrived', product });

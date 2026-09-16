@@ -4,10 +4,12 @@ import './index.css'
 import App from './App'
 import { loadWeaknesses } from './lib/data'
 
-loadWeaknesses().then(() => {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  )
-})
+loadWeaknesses()
+  .catch(() => { /* catalog stays empty; panels hide unknown IDs */ })
+  .finally(() => {
+    createRoot(document.getElementById('root')!).render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    )
+  })

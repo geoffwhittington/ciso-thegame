@@ -46,9 +46,13 @@ export function GameOverHero() {
         </div>
 
         <h1 className="mt-6 text-2xl sm:text-3xl font-extrabold tracking-tight">
-          {survived ? `You made it to ${game.getWinLabel()}` : 'Your tour is over'}
+          {survived
+            ? (game.maxTurns <= 3 ? 'You completed the interim assignment' : `You made it to ${game.getWinLabel()}`)
+            : 'Your tour is over'}
         </h1>
-        <p className="mt-1.5 text-base sm:text-lg text-white/70">{VERDICT[grade]}</p>
+        <p className="mt-1.5 text-base sm:text-lg text-white/70">
+          {survived ? `Final grade ${grade}` : (grade === 'F' ? 'Reputation reached zero' : VERDICT[grade])}
+        </p>
 
         <p className="mt-4 mx-auto max-w-md text-sm sm:text-base text-white/80 leading-relaxed">
           {game.getDebrief()}

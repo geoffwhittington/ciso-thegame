@@ -1,4 +1,7 @@
 import { useGame } from './GameContext';
+import { AssumptionsHelp } from './AssumptionsHelp';
+import { GameSection } from './GameSection';
+import { FlashOnChange } from './motion';
 
 function Row({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
@@ -18,19 +21,20 @@ export function HudSpend() {
   const comingIn = game.quarterlyBudget + game.treasury;
   const goingOut = run.total + newBuys;
   const overflow = game.getAlertOverflow();
-  const hours = game.getHoursQueued();
-  const hourCap = game.getHourCapacity();
   const champs = game.getChampionCount();
-  const team = game.getTeamMemberCount();
   const agents = game.getSupervisedAgentCount();
+  const fixes = game.getFixesThisQuarter();
+  const cap = game.getFixCapacity();
 
   return (
-    <div className="bg-card border border-border rounded-lg px-3 py-3 space-y-3">
+    <GameSection title="This quarter's money" help="budget">
+    <div className="space-y-3">
       <div className="flex items-end justify-between gap-3">
         <div>
           <div className="text-sm text-muted-foreground">Left to spend this quarter</div>
-          <div className={`text-2xl font-bold tabular-nums ${avail < 0 ? 'text-red-400' : avail < 100 ? 'text-yellow-400' : 'text-green-400'}`}>
-            ${avail}K
+          <div className={`text-2xl font-bold tabular-nums ${avail < 0 ? 'text-red-300' : avail < 100 ? 'text-yellow-200' : 'text-emerald-300'}`}>
+            <FlashOnChange value={avail}>${avail}K</FlashOnChange>
+            <span className="ml-2 text-sm font-semibold">{avail < 0 ? 'Overspent' : avail < 100 ? 'Tight' : 'Available'}</span>
           </div>
         </div>
         <div className="text-sm text-muted-foreground text-right hidden sm:block">
@@ -50,16 +54,10 @@ export function HudSpend() {
         <div>
           <div className="font-semibold mb-1">Goes out</div>
           {run.upkeep > 0 && (
-            <Row label="Running the controls you already have" value={`−$${run.upkeep}K`} tone="text-orange-400" />
-          )}
-          {run.falsePositives > 0 && (
-            <Row label="Extra work from unread alerts" value={`−$${run.falsePositives}K`} tone="text-red-400" />
-          )}
-          {run.training > 0 && (
-            <Row label="Training this quarter" value={`−$${run.training}K`} tone="text-orange-400" />
+            <Row label="Running the controls you already have" value={`−$${run.upkeep}K`} tone="text-brand" />
           )}
           {newBuys > 0 && (
-            <Row label="New buys this quarter" value={`−$${newBuys}K`} tone="text-orange-400" />
+            <Row label="New buys this quarter" value={`−$${newBuys}K`} tone="text-brand" />
           )}
           {goingOut === 0 && (
             <div className="text-muted-foreground">Nothing charged yet.</div>
@@ -77,14 +75,21 @@ export function HudSpend() {
       )}
 
       <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground border-t border-border pt-2">
-        <span>{champs} champion{champs !== 1 ? 's' : ''} · {team} teammates · {hours}/{hourCap}h</span>
-        {agents > 0 && <span>{agents} agent{agents !== 1 ? 's' : ''} freeing {agents * 2} teammates\' hours</span>}
+        <span>{champs} champion{champs !== 1 ? 's' : ''}{agents > 0 ? ` · ${agents} agent${agents !== 1 ? 's' : ''}` : ''}</span>
+        <span>
+          {game.reqMgmtLevel === 0 && !game.pendingUpgrades.reqMgmt
+            ? 'Buy Execute controls so staff can close risks'
+            : `Staff will close ${fixes} of ${cap} risk slot${cap !== 1 ? 's' : ''} this quarter`}
+          {' '}<AssumptionsHelp topic="staff" label="Why" />
+        </span>
         {game.getAlertLoad() > 0 && (
-          <span className={overflow > 0 ? 'text-red-400 font-semibold' : ''}>
+          <span className={overflow > 0 ? 'text-red-300 font-semibold' : ''}>
             Alerts {game.getAlertLoad()} / staff can handle {game.getStaffCapacity() || 0}
+            {overflow > 0 ? '. Alerting tools run one level weaker.' : ''}
           </span>
         )}
       </div>
     </div>
+    </GameSection>
   );
 }

@@ -1,16 +1,16 @@
 import {
   WEAKNESSES, ATTACKS, DEFENSES, MAX_DEFENSE_LEVEL, EVENTS, MILESTONES,
   DEGRADATION_EVENTS, DEGRADATION_BASE_PROB, DEGRADATION_STAFF_REDUCTION, DEGRADATION_MAX_PER_QUARTER,
-  STAFF_CAPACITY_PER_LEVEL, FALSE_POSITIVE_COST_PER_UNIT, industryLossK,
-  DEFENSE_DEPENDENCIES, TEAM_MEMBERS_PER_CHAMPION, HOURS_PER_TEAM_MEMBER, AGENT_TEAM_MEMBERS_PER_LEVEL,
-  type DegradationEvent,
+  STAFF_CAPACITY_PER_LEVEL, industryLossK,
+  DEFENSE_DEPENDENCIES, TEAM_MEMBERS_PER_CHAMPION, AGENT_FIX_SLOTS_PER_LEVEL,
 } from './data';
 import { ProductPipeline, type Product } from './products';
 import { REQUIREMENTS } from './security';
 import { NewsFeed } from './news';
-import { DEFAULT_SIM_KNOBS, type SimKnobs } from './simKnobs';
-import { GUIDED_BREACH_LOSS_MUL, GUIDED_UPKEEP_MUL, SDL_ATTACK_REMAINING } from './guidanceEvidence';
+import { DEFAULT_SIM_KNOBS, UNUSED_CARRY_PCT, budgetRate, type SimKnobs } from './simKnobs';
+import { GUIDED_UPKEEP_MUL, SDL_ATTACK_REMAINING } from './guidanceEvidence';
 import { urlForCitation } from './sources';
+import { describeBreach, breachCoverageNote } from './incidentCopy';
 
 // ─── TYPES ───────────────────────────────────────────────
 export interface Recommendation {
@@ -52,7 +52,7 @@ export class GameEngine {
 
   turn = 1;
   maxTurns = 8;
-  phase: 'briefing' | 'budget' | 'report' | 'gameover' = 'briefing';
+  phase: 'briefing' | 'howto' | 'budget' | 'report' | 'gameover' = 'briefing';
 
   revenue = 5000;
   companyValue = 250000;
@@ -63,11 +63,8 @@ export class GameEngine {
   knobs: SimKnobs = { ...DEFAULT_SIM_KNOBS };
 
   defenses: Record<string, number> = {};
-  trainingPaid: Record<string, boolean> = {};
 
   pendingUpgrades: Record<string, number> = {};
-  pendingMitigations: { productId: string; weaknessKey: string }[] = [];
-  pendingTraining: Record<string, boolean> = {};
 
   // Tracking
   totalBreaches = 0;
@@ -78,7 +75,6 @@ export class GameEngine {
   totalAttacks = 0;
   blindSpotBreaches = 0;
   blindSpotRepLost = 0;
-  totalFalsePositiveCost = 0;
   totalDegradationEvents = 0;
   degradationBreaches = 0;
   deploymentTurns: Record<string, number> = {};
@@ -106,20 +102,22 @@ export class GameEngine {
   reset(maxTurns?: number) {
     this.turn = 1; this.maxTurns = maxTurns ?? this.maxTurns ?? 8; this.phase = 'briefing';
     this.revenue = 5000; this.companyValue = 250000;
-    this.quarterlyBudget = 0; this.treasury = this.knobs.startTreasury;
+    this.quarterlyBudget = 0;
+    this.treasury = this.knobs.startTreasury + (this.maxTurns <= 3 ? 30 : 0);
     this.reputation = this.knobs.startReputation; this.securityPosture = 0;
-    this.defenses = {}; this.trainingPaid = {};
-    for (const key of Object.keys(DEFENSES)) { this.defenses[key] = 0; this.trainingPaid[key] = false; }
-    this.pendingUpgrades = {}; this.pendingMitigations = []; this.pendingTraining = {};
+    this.defenses = {};
+    for (const key of Object.keys(DEFENSES)) { this.defenses[key] = 0; }
+    this.pendingUpgrades = {};
     this.totalBreaches = 0; this.totalBlocked = 0; this.totalContained = 0;
     this.totalSpent = 0; this.totalAttackCost = 0; this.totalAttacks = 0; this.attackLog = []; this.turnLog = []; this.fullLog = [];
     this.blindSpotBreaches = 0; this.blindSpotRepLost = 0;
-    this.totalFalsePositiveCost = 0; this.totalDegradationEvents = 0;
+    this.totalDegradationEvents = 0;
     this.degradationBreaches = 0; this.deploymentTurns = {};
     this.quarterDegradations = [];
     this.quietStreak = 0; this.quietBonus = 0;
     this.started = false;
     this.products.reset(); this.news.reset();
+    this.products.quickLive = this.maxTurns <= 3;
     this.products.tick(1);
     this._calcBudget();
   }
@@ -145,27 +143,22 @@ export class GameEngine {
     return Math.max(0, this.getAlertLoad() - this.getStaffCapacity());
   }
 
-  getFalsePositiveCost(): number {
-    return this.getAlertOverflow() * FALSE_POSITIVE_COST_PER_UNIT;
-  }
-
-  getAlertFatigueMultiplier(): number {
-    const load = this.getAlertLoad();
-    if (load === 0) return 1;
-    const cap = this.getStaffCapacity();
-    return Math.min(1, cap / load);
+  hasOpsPenalty(key: string): boolean {
+    const def = DEFENSES[key];
+    const degraded = this.quarterDegradations.some(d => d.key === key);
+    const overflow = !!def && def.alertLoad > 0 && this.getAlertOverflow() > 0;
+    return degraded || overflow;
   }
 
   // ─── EFFECTIVE DEFENSE LEVEL ───────────────────────────
-  // Combines: raw level, dependencies, degradation, alert fatigue, requirements quality
+  // Owned level, capped by prereqs, then one ops penalty.
+  // Generic programs keep that level. Targeting is visibility + mitigation bonus, not a gate.
   getEffectiveDefenseLevel(key: string): number {
-    // secTeam takes effect immediately (hired people start working)
     let level = key === 'secTeam'
       ? (this.defenses[key] || 0) + (this.pendingUpgrades[key] || 0)
       : (this.defenses[key] || 0);
     if (level === 0) return 0;
 
-    // Dependency prerequisites — cap effective level if prereqs not met
     const dep = DEFENSE_DEPENDENCIES[key];
     if (dep?.requires) {
       for (const [reqKey, reqVal] of Object.entries(dep.requires)) {
@@ -175,49 +168,20 @@ export class GameEngine {
         else if (reqVal === 'level+1') needed = level + 1;
         else needed = reqVal;
         if (reqLevel < needed) {
-          // Cap to what the prereq can support
           const maxSupported = reqVal === 'level+1' ? Math.max(0, reqLevel - 1) : reqVal === 'level' ? reqLevel : (reqLevel >= needed ? level : Math.max(0, level - 1));
           level = Math.min(level, Math.max(1, maxSupported));
         }
       }
     }
 
-    // Operational degradation: -1 if degraded this quarter
-    if (this.quarterDegradations.some(d => d.key === key)) {
+    if (this.hasOpsPenalty(key)) {
       level = Math.max(0, level - 1);
-    }
-
-    const def = DEFENSES[key];
-
-    // Alert fatigue: only affects tools that generate alerts
-    if (def && def.alertLoad > 0) {
-      level = Math.max(0, Math.round(level * this.getAlertFatigueMultiplier()));
-    }
-
-    // Teams cannot fully leverage controls without threat modeling + security requirements.
-    if (def && def.type === 'capability' && key !== 'secTeam') {
-      const guidance = this.getGuidanceLevel();
-      if (guidance <= 0) {
-        level = Math.max(0, Math.round(level * 0.35));
-      } else {
-        const need = this.getAnticipatedNeed(key);
-        if (need === 0 && key !== 'secAgents') {
-          level = Math.max(0, Math.round(level * 0.2));
-        } else {
-          if (need > 0 && level > need) level = need;
-          if (level > guidance) {
-            level = guidance + Math.round((level - guidance) * 0.4);
-          } else {
-            level = Math.min(MAX_DEFENSE_LEVEL, level + 1);
-          }
-        }
-      }
     }
 
     return level;
   }
 
-  /** Weaker of TM and requirements, capped at company size. 0 = tools sit unused. */
+  /** Weaker of TM and requirements, capped at company size. 0 = generic coverage, industry residual. */
   getGuidanceLevel(): number {
     const both = Math.min(this.threatModelLevel, this.reqMgmtLevel);
     if (both <= 0) return 0;
@@ -350,13 +314,13 @@ export class GameEngine {
 
   // ─── BUDGET ────────────────────────────────────────────
   _calcBudget() {
-    // Security budget ~4–8% of quarterly revenue (not 15%+). Forces TM vs staff vs tools.
-    const pct = 0.04 + (this.reputation / 2000);
+    // Security budget ~3.5–4% of quarterly revenue at starting reputation. Enough for a starter program, not the full catalog.
+    const pct = budgetRate(this.reputation);
     this.quarterlyBudget = Math.round((this.revenue + this.products.getTotalRevenue()) * pct);
   }
 
   getRunCostBreakdown(includePending = false): {
-    upkeep: number; training: number; falsePositives: number; total: number;
+    upkeep: number; total: number;
   } {
     this._enforceLevelCaps();
     const tm = (this.defenses.threatModel || 0) + (includePending ? (this.pendingUpgrades.threatModel || 0) : 0);
@@ -372,14 +336,7 @@ export class GameEngine {
       }
       upkeep += level * unit;
     }
-    let training = 0;
-    for (const [key, def] of Object.entries(DEFENSES)) {
-      if (def.trainingCost > 0 && this.pendingTraining[key] && ((this.defenses[key] || 0) > 0 || this.pendingUpgrades[key])) {
-        training += def.trainingCost;
-      }
-    }
-    const falsePositives = this.getFalsePositiveCost();
-    return { upkeep, training, falsePositives, total: upkeep + training + falsePositives };
+    return { upkeep, total: upkeep };
   }
 
   getMaintenanceCost(): number {
@@ -428,39 +385,34 @@ export class GameEngine {
 
   getTeamMemberCount(): number {
     return this.getChampionCount() * TEAM_MEMBERS_PER_CHAMPION
-      + this.getSupervisedAgentCount() * AGENT_TEAM_MEMBERS_PER_LEVEL;
+      + this.getSupervisedAgentCount() * AGENT_FIX_SLOTS_PER_LEVEL;
   }
 
-  getMitigationHours(weaknessKey: string): number {
-    return (REQUIREMENTS[weaknessKey] || []).reduce((s, r) => s + r.effort, 0);
+  /** Risks staff will close this quarter. Needs Execute (reqMgmt). 1 per champion + 1 per supervised agent. */
+  getFixCapacity(): number {
+    if ((this.reqMgmtLevel || 0) + (this.pendingUpgrades.reqMgmt || 0) <= 0) return 0;
+    return this.getChampionCount() + this.getSupervisedAgentCount() * AGENT_FIX_SLOTS_PER_LEVEL;
   }
 
-  getHourCapacity(): number {
-    return this.getTeamMemberCount() * HOURS_PER_TEAM_MEMBER;
+  getUncoveredVisibleRisks(): { productId: string; weaknessKey: string; live: boolean; severity: number }[] {
+    const rows: { productId: string; weaknessKey: string; live: boolean; severity: number }[] = [];
+    for (const p of this.products.active) {
+      for (const wk of this.getVisibleWeaknesses(p)) {
+        if (p.mitigated.has(wk)) continue;
+        rows.push({
+          productId: p.id,
+          weaknessKey: wk,
+          live: !!p.launched,
+          severity: WEAKNESSES[wk]?.severity || 0,
+        });
+      }
+    }
+    rows.sort((a, b) => Number(b.live) - Number(a.live) || b.severity - a.severity);
+    return rows;
   }
 
-  getHoursQueued(): number {
-    return this.pendingMitigations.reduce((s, m) => s + this.getMitigationHours(m.weaknessKey), 0);
-  }
-
-  getHoursRemaining(): number {
-    return Math.max(0, this.getHourCapacity() - this.getHoursQueued());
-  }
-
-  getMitigationCost(weaknessKey: string): number {
-    return this.getMitigationHours(weaknessKey);
-  }
-
-  getMitigationCapacity(): number {
-    return this.getHourCapacity();
-  }
-
-  getMitigationsQueued(): number {
-    return this.pendingMitigations.length;
-  }
-
-  getMitigationSlotsRemaining(): number {
-    return this.getHoursRemaining();
+  getFixesThisQuarter(): number {
+    return Math.min(this.getFixCapacity(), this.getUncoveredVisibleRisks().length);
   }
 
   // ─── ACTIONS ───────────────────────────────────────────
@@ -503,35 +455,6 @@ export class GameEngine {
     return true;
   }
 
-  toggleTraining(key: string): boolean {
-    const def = DEFENSES[key];
-    if (!def || def.trainingCost === 0) return false;
-    if (this.defenses[key] === 0 && !this.pendingUpgrades[key]) return false;
-    this.pendingTraining[key] = !this.pendingTraining[key];
-    if (this.getAvailableBudget() < 0) { this.pendingTraining[key] = false; return false; }
-    return true;
-  }
-
-  queueMitigation(productId: string, weaknessKey: string): boolean {
-    const product = this.products.active.find(p => p.id === productId);
-    if (!product || product.mitigated.has(weaknessKey)) return false;
-    if (this.pendingMitigations.find(m => m.productId === productId && m.weaknessKey === weaknessKey)) return false;
-    if (this.getMitigationHours(weaknessKey) > this.getHoursRemaining()) return false;
-    this.pendingMitigations.push({ productId, weaknessKey });
-    return true;
-  }
-
-  cancelMitigation(productId: string, weaknessKey: string): boolean {
-    const idx = this.pendingMitigations.findIndex(m => m.productId === productId && m.weaknessKey === weaknessKey);
-    if (idx === -1) return false;
-    this.pendingMitigations.splice(idx, 1);
-    return true;
-  }
-
-  isMitigationQueued(productId: string, weaknessKey: string): boolean {
-    return !!this.pendingMitigations.find(m => m.productId === productId && m.weaknessKey === weaknessKey);
-  }
-
   // ─── END QUARTER ───────────────────────────────────────
   endQuarter() {
     if (this.phase !== 'budget') return null;
@@ -539,7 +462,11 @@ export class GameEngine {
     this.turnLog = [];
     this.quarterDegradations = [];
 
-    // Apply upgrades & track deployment turns
+    const spent = this.getMaintenanceCost() + this._pendingUpgradeCost();
+    const leftover = this.getAvailableBudget();
+    this.treasury = Math.max(0, Math.min(leftover, Math.round(this.quarterlyBudget * UNUSED_CARRY_PCT)));
+    this.totalSpent += spent;
+
     for (const [key, levels] of Object.entries(this.pendingUpgrades)) {
       const wasBefore = this.defenses[key] || 0;
       this.defenses[key] = wasBefore + levels;
@@ -547,27 +474,19 @@ export class GameEngine {
         this.deploymentTurns[key] = this.turn;
       }
     }
-
-    // Apply training
-    for (const key of Object.keys(DEFENSES)) {
-      this.trainingPaid[key] = !!this.pendingTraining[key];
-    }
-
-    // Apply mitigations
-    for (const m of this.pendingMitigations) {
-      const product = this.products.active.find(p => p.id === m.productId);
-      if (product) product.mitigated.add(m.weaknessKey);
-    }
-
-    const fpCost = this.getFalsePositiveCost();
-    this.totalFalsePositiveCost += fpCost;
-
-    const spent = this.getMaintenanceCost() + this._pendingUpgradeCost();
-    this.treasury = this.getAvailableBudget();
-    this.totalSpent += spent;
     this.pendingUpgrades = {};
-    this.pendingMitigations = [];
-    this.pendingTraining = {};
+
+    const closed: string[] = [];
+    const slots = this.getFixCapacity();
+    for (const row of this.getUncoveredVisibleRisks().slice(0, slots)) {
+      const product = this.products.active.find(p => p.id === row.productId);
+      if (!product) continue;
+      product.mitigated.add(row.weaknessKey);
+      closed.push(`${product.name}: ${WEAKNESSES[row.weaknessKey]?.label || row.weaknessKey}`);
+    }
+    if (closed.length > 0) {
+      this.turnLog.push({ type: 'fixes', data: { count: closed.length, items: closed } });
+    }
 
     this._calcPosture();
 
@@ -613,7 +532,13 @@ export class GameEngine {
     this.phase = 'budget';
   }
 
+  getRoleLabel(): string {
+    if (this.maxTurns <= 3) return 'Interim CISO';
+    return this.maxTurns >= 20 ? 'CISO, IPO path' : 'CISO, Series B';
+  }
+
   getWinLabel(): string {
+    if (this.maxTurns <= 3) return 'interim assignment';
     return this.maxTurns >= 20 ? 'IPO' : 'Series B';
   }
 
@@ -623,16 +548,16 @@ export class GameEngine {
     const survived = this.reputation > 0 && this.turn >= this.maxTurns;
     if (!tm && !rm) {
       return survived
-        ? 'Luck carried you. Controls without anticipation and execution usually do not hold.'
-        : 'The job is anticipate the attack, fund it, and execute. You spent without a picture of what was coming.';
+        ? 'Security budget lacked focus on the most vulnerable systems. Controls were not addressed or implemented to industry standards.'
+        : 'Security budget lacked focus on the most vulnerable systems. Reputation reached zero and the board ended the appointment.';
     }
     if (survived && tm && rm) {
-      return 'You anticipated the surface, funded the matching controls, and executed them. Luck still rolled. It just had less room.';
+      return 'Spend was focused on listed gaps. Matching controls were implemented against those systems.';
     }
     if (!survived) {
-      return 'Prediction, execution, and luck. Something lagged: unseen risk, a control that was not applied well, or a bad quarter.';
+      return 'Reputation reached zero before the window closed. Unlisted gaps, weaker applied controls, and incident outcomes all feed that score.';
     }
-    return 'You lasted. Keep anticipation and execution in step with growth. More revenue draws more attacks.';
+    return 'The window closed with reputation still above zero. In this sim, higher revenue also raises attack volume.';
   }
 
   // ─── DEGRADATION ───────────────────────────────────────
@@ -669,8 +594,8 @@ export class GameEngine {
 
   // ─── ATTACKS ───────────────────────────────────────────
   // Mitigation effectiveness for a weakness.
-  // If threat modeling hasn't identified this weakness on a specific product,
-  // defenses provide only generic (half) protection — they aren't targeted.
+  // Generic (no visible gap on that product): industry residual, half the matched path.
+  // Targeted (Anticipate has listed the gap): full path, plus a lift when Execute is sized too.
   getMitigationEffectiveness(weaknessKey: string, product?: Product): number {
     const w = WEAKNESSES[weaknessKey];
     if (!w?.mitigations) return 0;
@@ -744,24 +669,7 @@ export class GameEngine {
     if (!this.hasAppliedGuidance()) return 1;
     const g = this.getGuidanceLevel();
     const p = Math.max(1, this.getProgramTarget());
-    let mul = Math.max(SDL_ATTACK_REMAINING, 1 - (1 - SDL_ATTACK_REMAINING) * (g / p));
-    mul = Math.min(1, mul + this.getGoldPlateSurfacePenalty());
-    const overflow = this.getAlertOverflow();
-    if (overflow > 0) mul = Math.min(1, mul + Math.min(0.35, overflow * 0.02));
-    return mul;
-  }
-
-  /** Extra control levels past anticipated need expand the live surface (misconfig, unused product). */
-  getGoldPlateSurfacePenalty(): number {
-    if (this.threatModelLevel <= 0) return 0;
-    let extra = 0;
-    for (const [k, def] of Object.entries(DEFENSES)) {
-      if (def.type !== 'capability' || k === 'secTeam' || k === 'secAgents') continue;
-      const have = this.defenses[k] || 0;
-      const need = this.getAnticipatedNeed(k);
-      extra += Math.max(0, have - Math.max(need, 0));
-    }
-    return Math.min(0.45, extra * 0.03);
+    return Math.max(SDL_ATTACK_REMAINING, 1 - (1 - SDL_ATTACK_REMAINING) * (g / p));
   }
 
   _rollAttacks() {
@@ -824,12 +732,11 @@ export class GameEngine {
       }
 
       // Check if alert fatigue or degradation contributed
-      const fatigueMultiplier = this.getAlertFatigueMultiplier();
-      const hasDegradedDefense = tpl.exploits.some((wk: string) => {
+      const hasOpsHit = tpl.exploits.some((wk: string) => {
         const w = WEAKNESSES[wk];
         if (!w?.mitigations) return false;
         return w.mitigations.some(path =>
-          Object.keys(path.requires).some(dk => this.quarterDegradations.some(d => d.key === dk))
+          Object.keys(path.requires).some(dk => this.hasOpsPenalty(dk))
         );
       });
 
@@ -863,38 +770,41 @@ export class GameEngine {
         const names = attack.vulnProducts.map((v: any) => v.name).join(', ');
         attack.impact = `BREACH — ${names} compromised. Rep -${repHit}`;
 
-        // Determine breach cause for educational reasoning
+        const hits = attack.vulnProducts.map((v: { id: string; name: string }) => ({ id: v.id, name: v.name }));
+        attack.reason = describeBreach(tpl.name, hits);
+
         if (anyBlindSpot) {
           attack.blindSpot = true;
-          if (this.threatModelLevel === 0) {
-            attack.reason = 'This was not anticipated on that system, so the spend did not line up.';
-          } else {
-            attack.reason = 'You could see a gap, but anticipation did not yet cover this one. Widen what you look at, or fund the matching control.';
-          }
+          attack.coverageNote = breachCoverageNote({
+            blindSpot: true,
+            threatModelLevel: this.threatModelLevel,
+            ops: null,
+          });
           this.blindSpotBreaches++;
           this.blindSpotRepLost += repHit;
-        } else if (fatigueMultiplier < 1 && tpl.exploits.some((wk: string) => {
-          const w = WEAKNESSES[wk];
-          return w?.mitigations?.some(p => Object.keys(p.requires).some(dk => DEFENSES[dk]?.alertLoad > 0));
-        })) {
-          attack.alertFatigue = true;
-          attack.reason = 'Your tools flagged this but the alert was lost in noise. More Security Staff would help.';
-        } else if (hasDegradedDefense) {
+        } else if (hasOpsHit) {
           attack.degraded = true;
-          const deg = this.quarterDegradations[0];
-          attack.reason = `This slipped through because your ${DEFENSES[deg?.key]?.name || 'defenses'} was degraded this quarter.`;
+          const hit = this.quarterDegradations[0];
+          attack.coverageNote = breachCoverageNote({
+            blindSpot: false,
+            threatModelLevel: this.threatModelLevel,
+            ops: this.getAlertOverflow() > 0 ? 'alerts' : 'degraded',
+            degradedName: DEFENSES[hit?.key]?.name,
+          });
           this.degradationBreaches++;
         } else {
-          // Known gap — find the unmitigated weakness
           const unmitigated = exploitedWeaknesses.find(wk => this.getMitigationEffectiveness(wk) < 0.5);
           const w = unmitigated ? WEAKNESSES[unmitigated] : null;
-          attack.reason = w
-            ? `Anticipated a ${w.label} gap — the matching investment or execution was not enough (luck can still bite).`
-            : 'This attack found a gap in funding or execution.';
+          attack.coverageNote = breachCoverageNote({
+            blindSpot: false,
+            threatModelLevel: this.threatModelLevel,
+            ops: null,
+            weaknessLabel: w?.label,
+          });
         }
 
         if (mistakeRoll <= 0.05 && overallEffectiveness >= 0.5) {
-          attack.reason += ' (operational error despite defenses)';
+          attack.coverageNote = `${attack.coverageNote || ''} Operational error this quarter despite controls.`.trim();
         }
 
         this.reputation = Math.max(0, this.reputation - repHit);
@@ -916,7 +826,6 @@ export class GameEngine {
     let loss = 0;
     if (result === 'contained') loss = Math.round(full * 0.12);
     else if (result === 'breach') loss = Math.round(full * (1 - effectiveness * 0.5));
-    if (loss > 0 && this.hasAppliedGuidance()) loss = Math.round(loss * GUIDED_BREACH_LOSS_MUL);
     this.totalAttackCost += loss;
     return loss;
   }
@@ -976,7 +885,7 @@ export class GameEngine {
     if (overflow > 0 && recs.length < 3 && !alreadyQueued.has('secTeam')) {
       recs.push({
         icon: '👥', title: 'Hire a champion and a team of 4',
-        detail: 'One person who can use the tools, plus teammates who do the hours. Tools send alerts. You need people to read them and to land the fixes.',
+        detail: 'One champion plus a team. People close risks and keep alerting tools working.',
         actionType: 'upgrade', actionKey: 'secTeam', cost: DEFENSES.secTeam.setupCost,
       });
     }
@@ -1181,7 +1090,6 @@ export class GameEngine {
       repLostToBlindSpots: this.blindSpotRepLost,
       degradationBreaches: this.degradationBreaches,
       totalDegradationEvents: this.totalDegradationEvents,
-      totalFalsePositiveCost: this.totalFalsePositiveCost,
     };
   }
 
@@ -1265,9 +1173,9 @@ export class GameEngine {
             }
           }
         } else if (path?.met && this.reqMgmtLevel > 0) {
-          nextAction = 'Implement controls';
-          nextActionKey = '';
-          nextActionCost = this.getMitigationHours(wk);
+          nextAction = this.getFixCapacity() > 0 ? 'Staff will close this' : 'Hire staff to close this';
+          nextActionKey = this.getFixCapacity() > 0 ? '' : 'secTeam';
+          nextActionCost = this.getFixCapacity() > 0 ? null : this.getUpgradeCost('secTeam');
         }
 
         findings.push({
@@ -1346,7 +1254,7 @@ export class GameEngine {
         type: 'trust',
         data: {
           bump, pts, streak: this.quietStreak,
-          text: `Quiet quarter — customers trusted the product more. Revenue +$${bump}K/q, reputation +3, CISO score +${pts}.`,
+          text: `Quiet quarter. Revenue +$${bump}K/q, reputation +3, score +${pts}.`,
         },
       });
     } else {

@@ -1,6 +1,6 @@
 import { GameEngine } from './game';
 
-const KEY = 'ciso-save-v1';
+const KEY = 'ciso-save-v2';
 
 export function snapshotGame(game: GameEngine) {
   return {
@@ -16,10 +16,7 @@ export function snapshotGame(game: GameEngine) {
     securityPosture: game.securityPosture,
     knobs: game.knobs,
     defenses: game.defenses,
-    trainingPaid: game.trainingPaid,
     pendingUpgrades: game.pendingUpgrades,
-    pendingMitigations: game.pendingMitigations,
-    pendingTraining: game.pendingTraining,
     totalBreaches: game.totalBreaches,
     totalBlocked: game.totalBlocked,
     totalContained: game.totalContained,
@@ -28,7 +25,6 @@ export function snapshotGame(game: GameEngine) {
     totalAttacks: game.totalAttacks,
     blindSpotBreaches: game.blindSpotBreaches,
     blindSpotRepLost: game.blindSpotRepLost,
-    totalFalsePositiveCost: game.totalFalsePositiveCost,
     totalDegradationEvents: game.totalDegradationEvents,
     degradationBreaches: game.degradationBreaches,
     deploymentTurns: game.deploymentTurns,
@@ -56,10 +52,7 @@ export function applySnapshot(game: GameEngine, snap: ReturnType<typeof snapshot
   game.securityPosture = snap.securityPosture ?? 0;
   game.knobs = { ...game.knobs, ...(snap.knobs || {}) };
   game.defenses = { ...game.defenses, ...(snap.defenses || {}) };
-  game.trainingPaid = snap.trainingPaid ?? {};
   game.pendingUpgrades = snap.pendingUpgrades ?? {};
-  game.pendingMitigations = snap.pendingMitigations ?? [];
-  game.pendingTraining = snap.pendingTraining ?? {};
   game.totalBreaches = snap.totalBreaches ?? 0;
   game.totalBlocked = snap.totalBlocked ?? 0;
   game.totalContained = snap.totalContained ?? 0;
@@ -68,7 +61,6 @@ export function applySnapshot(game: GameEngine, snap: ReturnType<typeof snapshot
   game.totalAttacks = snap.totalAttacks ?? 0;
   game.blindSpotBreaches = snap.blindSpotBreaches ?? 0;
   game.blindSpotRepLost = snap.blindSpotRepLost ?? 0;
-  game.totalFalsePositiveCost = snap.totalFalsePositiveCost ?? 0;
   game.totalDegradationEvents = snap.totalDegradationEvents ?? 0;
   game.degradationBreaches = snap.degradationBreaches ?? 0;
   game.deploymentTurns = snap.deploymentTurns ?? {};
@@ -79,7 +71,12 @@ export function applySnapshot(game: GameEngine, snap: ReturnType<typeof snapshot
   game.turnLog = snap.turnLog ?? [];
   game.fullLog = snap.fullLog ?? [];
   game.products.fromJSON(snap.products);
+  game.products.quickLive = game.maxTurns <= 3;
   if (snap.news) game.news.fromJSON(snap.news);
+  const phases = ['briefing', 'howto', 'budget', 'report', 'gameover'] as const;
+  if (!phases.includes(game.phase as typeof phases[number])) {
+    game.phase = game.started ? 'budget' : 'briefing';
+  }
 }
 
 export function saveGame(game: GameEngine) {
@@ -109,11 +106,7 @@ export function loadGame(game: GameEngine): boolean {
 }
 
 export function clearGameSave() {
-  try {
-    localStorage.removeItem(KEY);
-  } catch {
-    /* ignore */
-  }
+  try { localStorage.removeItem(KEY); } catch { /* ignore */ }
 }
 
 export function createEngine(): GameEngine {

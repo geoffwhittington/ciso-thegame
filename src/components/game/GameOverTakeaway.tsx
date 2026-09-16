@@ -23,7 +23,7 @@ export function GameOverTakeaway() {
           {game.totalBlocked} stopped. {game.totalContained} contained. {game.totalBreaches} got through.
           {game.totalBreaches > 0 && (
             <>
-              {' '}Estimated loss <strong className="text-red-400">${breachCost}M</strong>
+              {' '}Estimated loss <strong className="text-red-300">${breachCost}M</strong>
               {' '}(
               <CiteLink href={SOURCE_URLS['IBM Cost of a Data Breach 2024']}>IBM Cost of a Data Breach 2024</CiteLink>
               ).
@@ -31,13 +31,8 @@ export function GameOverTakeaway() {
           )}
         </p>
         {bs.blindSpotBreaches > 0 && (
-          <p className="text-red-400">
+          <p className="text-red-300">
             {bs.blindSpotBreaches} of those breaches hit a gap you had not identified yet.
-          </p>
-        )}
-        {bs.totalFalsePositiveCost > 0 && (
-          <p>
-            ${bs.totalFalsePositiveCost}K went to unread-alert work. Tools without enough people.
           </p>
         )}
         <div className="pt-2 border-t border-border space-y-1 text-muted-foreground">

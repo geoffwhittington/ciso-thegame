@@ -46,7 +46,6 @@ export interface Defense {
   type: DefenseType;
   setupCost: number;
   maintainCost: number;
-  trainingCost: number;
   alertLoad: number;        // alert volume generated per level — requires secTeam to triage
   desc: string;
   helps: string[];
@@ -54,33 +53,31 @@ export interface Defense {
 
 export const DEFENSES: Record<string, Defense> = {
   // ── Capabilities ──
-  secTeam:     { name: 'Security Staff',         icon: '👥', type: 'capability', setupCost: 70,  maintainCost: 18, trainingCost: 0, alertLoad: 0, desc: 'Each hire is one champion who can use the tools, plus 4 teammates who do the implementation work.',              helps: ['ACCESS', 'EXPOSE', 'AGENCY'] },
-  awareness:   { name: 'Security Awareness',     icon: '🎓', type: 'capability', setupCost: 20,  maintainCost: 5,  trainingCost: 0, alertLoad: 0, desc: 'Phishing sims, secure coding training',            helps: ['AUTH', 'INJ', 'PROMPT'] },
-  identity:    { name: 'Identity & Access Mgmt', icon: '🔑', type: 'capability', setupCost: 45,  maintainCost: 12, trainingCost: 0, alertLoad: 0, desc: 'SSO, MFA, PAM, zero-trust policies',               helps: ['AUTH', 'ACCESS'] },
-  endpoint:    { name: 'Endpoint & EDR',         icon: '💻', type: 'capability', setupCost: 40,  maintainCost: 10, trainingCost: 0, alertLoad: 2, desc: 'Endpoint detection, patching, device mgmt',        helps: ['VULN', 'MISCONF'] },
-  network:     { name: 'Network & Perimeter',    icon: '🌐', type: 'capability', setupCost: 45,  maintainCost: 12, trainingCost: 0, alertLoad: 0, desc: 'Firewalls, WAF, DDoS, segmentation',               helps: ['INJ', 'SSRF', 'MISCONF'] },
-  cloud:       { name: 'Cloud Security',         icon: '☁️', type: 'capability', setupCost: 50,  maintainCost: 14, trainingCost: 0, alertLoad: 2, desc: 'CSPM, container security, CWPP',                   helps: ['MISCONF', 'ACCESS', 'EXPOSE'] },
-  appSec:      { name: 'Application Security',   icon: '🔧', type: 'capability', setupCost: 45,  maintainCost: 12, trainingCost: 0, alertLoad: 3, desc: 'SAST, DAST, SCA, secure SDLC',                     helps: ['INJ', 'VULN', 'SUPPLY'] },
-  dataProtect: { name: 'Data Protection',        icon: '🗄️', type: 'capability', setupCost: 40,  maintainCost: 10, trainingCost: 0, alertLoad: 0, desc: 'Encryption, DLP, classification',                  helps: ['EXPOSE', 'LEAK'] },
-  siem:        { name: 'SIEM & Monitoring',      icon: '📡', type: 'capability', setupCost: 55,  maintainCost: 16, trainingCost: 0, alertLoad: 4, desc: 'Log aggregation, alerting, detection',             helps: ['LOG', 'ACCESS', 'AUTH'] },
-  ir:          { name: 'Incident Response',      icon: '🚨', type: 'capability', setupCost: 30,  maintainCost: 8,  trainingCost: 0, alertLoad: 0, desc: 'IR plans, tabletops, retainers',                   helps: ['LOG', 'EXPOSE', 'VULN'] },
-  grc:         { name: 'GRC & Compliance',       icon: '📋', type: 'capability', setupCost: 25,  maintainCost: 6,  trainingCost: 0, alertLoad: 0, desc: 'Policy frameworks, audits, regulatory',            helps: ['ACCESS', 'LOG', 'SUPPLY'] },
-  aiSecurity:  { name: 'AI/ML Security',         icon: '🤖', type: 'capability', setupCost: 55,  maintainCost: 16, trainingCost: 0, alertLoad: 0, desc: 'Guardrails, model monitoring, red team',            helps: ['PROMPT', 'AGENCY', 'POISON', 'LEAK', 'THEFT'] },
-  secAgents:   { name: 'Security Automation',    icon: '⚡', type: 'capability', setupCost: 40,  maintainCost: 10, trainingCost: 0, alertLoad: 0, desc: 'Each agent frees 2 teammates\' hours. Staff must be one level higher than agents, so people stay in charge.', helps: [] },
+  secTeam:     { name: 'Security Staff',         icon: '👥', type: 'capability', setupCost: 50,  maintainCost: 16, alertLoad: 0, desc: 'Each hire is one champion who can use the tools, plus 4 teammates who close risks each quarter.',              helps: ['ACCESS', 'EXPOSE', 'AGENCY'] },
+  awareness:   { name: 'Security Awareness',     icon: '🎓', type: 'capability', setupCost: 20,  maintainCost: 5,  alertLoad: 0, desc: 'Phishing sims, secure coding training',            helps: ['AUTH', 'INJ', 'PROMPT'] },
+  identity:    { name: 'Identity & Access Mgmt', icon: '🔑', type: 'capability', setupCost: 45,  maintainCost: 12, alertLoad: 0, desc: 'SSO, MFA, PAM, zero-trust policies',               helps: ['AUTH', 'ACCESS'] },
+  endpoint:    { name: 'Endpoint & EDR',         icon: '💻', type: 'capability', setupCost: 40,  maintainCost: 10, alertLoad: 2, desc: 'Endpoint detection, patching, device mgmt',        helps: ['VULN', 'MISCONF'] },
+  network:     { name: 'Network & Perimeter',    icon: '🌐', type: 'capability', setupCost: 45,  maintainCost: 12, alertLoad: 0, desc: 'Firewalls, WAF, DDoS, segmentation',               helps: ['INJ', 'SSRF', 'MISCONF'] },
+  cloud:       { name: 'Cloud Security',         icon: '☁️', type: 'capability', setupCost: 50,  maintainCost: 14, alertLoad: 2, desc: 'CSPM, container security, CWPP',                   helps: ['MISCONF', 'ACCESS', 'EXPOSE'] },
+  appSec:      { name: 'Application Security',   icon: '🔧', type: 'capability', setupCost: 45,  maintainCost: 12, alertLoad: 3, desc: 'SAST, DAST, SCA, secure SDLC',                     helps: ['INJ', 'VULN', 'SUPPLY'] },
+  dataProtect: { name: 'Data Protection',        icon: '🗄️', type: 'capability', setupCost: 40,  maintainCost: 10, alertLoad: 0, desc: 'Encryption, DLP, classification',                  helps: ['EXPOSE', 'LEAK'] },
+  siem:        { name: 'SIEM & Monitoring',      icon: '📡', type: 'capability', setupCost: 55,  maintainCost: 16, alertLoad: 4, desc: 'Log aggregation, alerting, detection',             helps: ['LOG', 'ACCESS', 'AUTH'] },
+  ir:          { name: 'Incident Response',      icon: '🚨', type: 'capability', setupCost: 30,  maintainCost: 8,  alertLoad: 0, desc: 'IR plans, tabletops, retainers',                   helps: ['LOG', 'EXPOSE', 'VULN'] },
+  grc:         { name: 'GRC & Compliance',       icon: '📋', type: 'capability', setupCost: 25,  maintainCost: 6,  alertLoad: 0, desc: 'Policy frameworks, audits, regulatory',            helps: ['ACCESS', 'LOG', 'SUPPLY'] },
+  aiSecurity:  { name: 'AI/ML Security',         icon: '🤖', type: 'capability', setupCost: 55,  maintainCost: 16, alertLoad: 0, desc: 'Guardrails, model monitoring, red team',            helps: ['PROMPT', 'AGENCY', 'POISON', 'LEAK', 'THEFT'] },
+  secAgents:   { name: 'Security Automation',    icon: '⚡', type: 'capability', setupCost: 40,  maintainCost: 10, alertLoad: 0, desc: 'Each agent closes 1 extra risk per quarter. Staff must stay one level higher so people stay in charge.', helps: [] },
   // ── Anticipate & execute ──
-  threatModel: { name: 'Anticipate risks', icon: '🔍', type: 'tool', setupCost: 25,  maintainCost: 8, trainingCost: 0, alertLoad: 0, desc: 'Predict how each system gets attacked so you fund the right controls. Includes the people who do the analysis.', helps: [] },
-  reqMgmt:     { name: 'Execute controls', icon: '📝', type: 'tool', setupCost: 30,  maintainCost: 10, trainingCost: 0, alertLoad: 0, desc: 'Requirements and training so investments actually stop those attacks — not just sit on a slide.', helps: [] },
+  threatModel: { name: 'Anticipate risks', icon: '🔍', type: 'tool', setupCost: 25,  maintainCost: 8, alertLoad: 0, desc: 'Predict how each system gets attacked so you fund the right controls. Includes the people who do the analysis.', helps: [] },
+  reqMgmt:     { name: 'Execute controls', icon: '📝', type: 'tool', setupCost: 30,  maintainCost: 10, alertLoad: 0, desc: 'Requirements so investments actually stop those attacks — not just sit on a slide.', helps: [] },
 };
 
 export const MAX_DEFENSE_LEVEL = 5;
 export { levelMeaning, defenseCovers, countersPlain } from './defenseStory';
 export const STAFF_CAPACITY_PER_LEVEL = 6;
-export const FALSE_POSITIVE_COST_PER_UNIT = 5; // $5K per overflow unit/quarter
-/** Each Security Staff hire is 1 champion plus this many teammates who do the work. */
+/** Each Security Staff hire is 1 champion plus this many teammates. */
 export const TEAM_MEMBERS_PER_CHAMPION = 4;
-export const HOURS_PER_TEAM_MEMBER = 100;
-/** One AI agent frees this many teammates' hours. Needs staff one level higher. */
-export const AGENT_TEAM_MEMBERS_PER_LEVEL = 2;
+/** One supervised agent closes this many extra risks per quarter. */
+export const AGENT_FIX_SLOTS_PER_LEVEL = 1;
 
 // ─── INVESTMENT DEPENDENCIES ─────────────────────────────
 // Real-world technology interdependencies between security investments.

@@ -15,7 +15,7 @@ export const HABIT_COPY: Record<StrategyId, { label: string; hint: string }> = {
   },
   controlsOnly: {
     label: 'Tools, no assessment or guide',
-    hint: 'Buy a tool stack. No risk assessment, no guidance. Teams cannot use them in the right place or the right way.',
+    hint: 'Buy a tool stack with no risk assessment. Controls apply generically. Residual risk stays at industry rates.',
   },
   aligned: {
     label: 'Assessment + guide + tools',

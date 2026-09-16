@@ -9,11 +9,11 @@ export function GameOverScore() {
     { label: 'Company value', value: `+${b.valuationPts}`, hint: `$${(game.companyValue / 1000).toFixed(0)}M` },
     { label: 'Reputation', value: `+${b.reputationPts}`, hint: `${game.reputation}/100` },
     { label: 'Defense posture', value: `+${b.posturePts}`, hint: `${game.securityPosture}%` },
-    { label: 'Attacks stopped', value: `+${b.blockedPts}`, hint: `${game.totalBlocked} blocked`, tone: 'text-green-400' },
+    { label: 'Attacks stopped', value: `+${b.blockedPts}`, hint: `${game.totalBlocked} blocked`, tone: 'text-emerald-300' },
     { label: 'Controls bought', value: `+${b.defensePts}` },
-    { label: 'Anticipate and execute', value: `+${b.toolPts}`, hint: 'Risk assessment + guidance', tone: 'text-orange-400' },
-    { label: 'Quiet quarters', value: `+${b.quietPts}`, hint: `${game.quietBonus} pts from calm quarters`, tone: 'text-green-400' },
-    { label: 'Breaches', value: `-${b.breachPenalty}`, hint: `${game.totalBreaches}`, tone: 'text-red-400' },
+    { label: 'Anticipate and execute', value: `+${b.toolPts}`, hint: 'Risk assessment + guidance', tone: 'text-brand' },
+    { label: 'Quiet quarters', value: `+${b.quietPts}`, hint: `${game.quietBonus} pts from calm quarters`, tone: 'text-emerald-300' },
+    { label: 'Breaches', value: `-${b.breachPenalty}`, hint: `${game.totalBreaches}`, tone: 'text-red-300' },
   ];
 
   return (

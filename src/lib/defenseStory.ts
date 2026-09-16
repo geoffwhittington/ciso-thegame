@@ -159,12 +159,12 @@ export const DEFENSE_STORY: Record<string, { covers: string; levels: string[] }>
     ],
   },
   secAgents: {
-    covers: 'Each agent frees 2 teammates\' hours. Staff must stay one level higher so people supervise.',
+    covers: 'Each agent closes 1 extra risk per quarter. Staff must stay one level higher so people supervise.',
     levels: [
-      'Frees 2 teammates\' hours. Needs staff at 2.',
-      'Frees 4 teammates\' hours. Needs staff at 3.',
-      'Frees 6 teammates\' hours. Needs staff at 4.',
-      'Frees 8 teammates\' hours. Needs staff at 5.',
+      'Closes 1 extra risk / q. Needs staff at 2.',
+      'Closes 2 extra risks / q. Needs staff at 3.',
+      'Closes 3 extra risks / q. Needs staff at 4.',
+      'Closes 4 extra risks / q. Needs staff at 5.',
       'Staff must stay ahead. You cannot outrun people with agents.',
     ],
   },

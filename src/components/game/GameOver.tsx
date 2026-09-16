@@ -22,7 +22,7 @@ export function GameOver() {
     saveScore({
       name: name || 'Anonymous', score: breakdown.total, grade, turns: game.turn,
       breaches: game.totalBreaches, valuation: `$${(game.companyValue / 1000).toFixed(0)}M`,
-      blindSpots: bs.blindSpotBreaches, falsePositiveCost: bs.totalFalsePositiveCost,
+      blindSpots: bs.blindSpotBreaches,
       degradationEvents: bs.totalDegradationEvents, estimatedBreachCost: game.getEstimatedBreachCost(),
       threatModelTurn: game.deploymentTurns.threatModel || 0,
       reqMgmtTurn: game.deploymentTurns.reqMgmt || 0,
@@ -39,7 +39,7 @@ export function GameOver() {
       {/* Play again — the primary next step */}
       <Button
         size="lg"
-        className="w-full min-h-14 text-lg font-bold bg-[#f15f24] hover:bg-orange-600 text-white"
+        className="w-full min-h-14 text-lg font-bold"
         onClick={startOver}
       >
         Play again
@@ -60,14 +60,14 @@ export function GameOver() {
             <Button variant="secondary" onClick={handleSave}>Save my run</Button>
           </div>
         ) : (
-          <p className="text-green-500 font-semibold text-center text-sm">Saved on this device</p>
+      <p className="text-emerald-300 font-semibold text-center text-sm">Saved on this device</p>
         )}
 
         {scores.length > 0 && (
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Best on this device</h3>
             {scores.slice(0, 5).map((s, i) => (
-              <div key={s.id} className={`flex gap-2 py-1.5 border-b border-border last:border-0 text-sm min-w-0 ${i === 0 ? 'text-yellow-500 font-semibold' : ''}`}>
+              <div key={s.id} className={`flex gap-2 py-1.5 border-b border-border last:border-0 text-sm min-w-0 ${i === 0 ? 'text-yellow-200 font-semibold' : ''}`}>
                 <span className="w-5 shrink-0 text-muted-foreground">{i + 1}</span>
                 <span className="flex-1 min-w-0 truncate">{s.name}</span>
                 <span className="font-bold tabular-nums shrink-0">{s.score.toLocaleString()}</span>

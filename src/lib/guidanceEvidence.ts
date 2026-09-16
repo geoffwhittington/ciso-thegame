@@ -33,11 +33,17 @@ export const GUIDANCE_EVIDENCE = [
   },
 ] as const;
 
-/** Remaining attack volume at full TM+RM with controls. Howard 2005 ~50–60% fewer defects → keep 40%. */
-export const SDL_ATTACK_REMAINING = 0.4;
+/** Remaining attack *volume* at full TM+RM. Howard 2005 ~50–60% fewer defects → keep ~half the attempts. Do not also stack this into $ or effectiveness. */
+export const SDL_ATTACK_REMAINING = 0.5;
+
+/** Generic (unlisted) gap: control still applies, but not aimed. Enough that a strong tool stack can contain some hits; not a second SDL volume cut. */
+export const GENERIC_HIDDEN_MUL = 0.65;
+
+/** Aligned controls still drift, just less often. */
+export const ALIGNED_DEGRADE_MUL = 0.4;
+
+/** Catalog quarterlyProb values are cited shares/prevalence, not P(incident this quarter). */
+export const CITED_SHARE_TO_P = 0.35;
 
 /** Run-cost of a control when TM+RM cover it. Milder than NIST 30× so quarters still play; still a real cut. */
 export const GUIDED_UPKEEP_MUL = 0.55;
-
-/** Remaining incident $ when prevention (TM + requirements + matching controls) is in place. IBM CODB 2024 $2.2M / $4.88M ≈ 0.55 remaining. */
-export const GUIDED_BREACH_LOSS_MUL = 0.55;

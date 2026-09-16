@@ -28,8 +28,10 @@ describe('CISO engine invariants', () => {
   it('cuts upkeep when TM and requirements match a defense', () => {
     const raw = new GameEngine();
     raw.defenses.identity = 2;
+    raw.defenses.grc = 1;
     const aligned = new GameEngine();
     aligned.defenses.identity = 2;
+    aligned.defenses.grc = 1;
     aligned.defenses.threatModel = 2;
     aligned.defenses.reqMgmt = 2;
     const toolsUpkeep = 2 * DEFENSES.threatModel.maintainCost + 2 * DEFENSES.reqMgmt.maintainCost;
@@ -37,7 +39,8 @@ describe('CISO engine invariants', () => {
     const identityDiscounted = 2 * Math.round(DEFENSES.identity.maintainCost * 0.55);
     expect(raw.getMaintenanceCost()).toBe(identityUpkeep);
     expect(aligned.getMaintenanceCost()).toBe(toolsUpkeep + identityDiscounted);
-    expect(aligned.getEffectiveDefenseLevel('identity')).toBeGreaterThan(raw.getEffectiveDefenseLevel('identity'));
+    const platform = raw.products.getLiveProducts()[0];
+    expect(aligned.getMitigationEffectiveness('AUTH', platform)).toBeGreaterThan(raw.getMitigationEffectiveness('AUTH', platform));
   });
 
   it('skips degradation on aligned defenses', () => {
@@ -68,20 +71,21 @@ describe('CISO engine invariants', () => {
     expect(g.quietStreak).toBe(0);
   });
 
-  it('gives more implement hours as staff and supervised agents grow', () => {
+  it('gives more fix slots as staff and supervised agents grow', () => {
     const g = new GameEngine();
-    expect(g.getHourCapacity()).toBe(0);
+    g.defenses.reqMgmt = 1;
+    expect(g.getFixCapacity()).toBe(0);
     expect(g.getLevelCap('secAgents')).toBe(0);
     g.defenses.secTeam = 1;
-    expect(g.getHourCapacity()).toBe(4 * 100);
+    expect(g.getFixCapacity()).toBe(1);
     expect(g.getLevelCap('secAgents')).toBe(0);
     g.defenses.secTeam = 2;
     g.defenses.secAgents = 2;
     expect(g.getSupervisedAgentCount()).toBe(1);
-    expect(g.getHourCapacity()).toBe(2 * 400 + 1 * 200);
+    expect(g.getFixCapacity()).toBe(2 + 1);
     g.defenses.secTeam = 3;
     expect(g.getSupervisedAgentCount()).toBe(2);
-    expect(g.getHourCapacity()).toBe(3 * 400 + 2 * 200);
+    expect(g.getFixCapacity()).toBe(3 + 2);
   });
 
   it('does not attack products that are not live', () => {
@@ -182,14 +186,17 @@ describe('lab rates hold at 8Q and 20Q', () => {
 });
 
 describe('guidance leverage', () => {
-  it('tools without TM and requirements are weakly leveraged', () => {
+  it('generic controls apply at purchased level without TM', () => {
     const blind = new GameEngine();
     blind.defenses.identity = 4;
     const guided = new GameEngine();
     guided.defenses.identity = 4;
     guided.defenses.threatModel = 2;
     guided.defenses.reqMgmt = 2;
-    expect(guided.getEffectiveDefenseLevel('identity')).toBeGreaterThan(blind.getEffectiveDefenseLevel('identity'));
+    expect(blind.getEffectiveDefenseLevel('identity')).toBe(4);
+    expect(guided.getEffectiveDefenseLevel('identity')).toBe(4);
+    const platform = blind.products.getLiveProducts()[0];
+    expect(guided.getMitigationEffectiveness('AUTH', platform)).toBeGreaterThan(blind.getMitigationEffectiveness('AUTH', platform));
   });
 
   it('TM and requirements shrink attack volume and mitigation cost', () => {
@@ -224,7 +231,6 @@ describe('guidance leverage', () => {
 
     expect(none.getGuidedSurfaceMul()).toBe(1);
     expect(guided.getGuidedSurfaceMul()).toBeLessThan(0.5);
-    expect(guided.getGuidedSurfaceMul()).toBeLessThan(gold.getGuidedSurfaceMul());
     expect(guided.getMaintenanceCost()).toBeLessThan(gold.getMaintenanceCost());
   });
 

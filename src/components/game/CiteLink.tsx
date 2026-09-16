@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 
-export function CiteLink({ href, children }: { href: string; children: ReactNode }) {
+export function CiteLink({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-orange-400 underline-offset-2 hover:underline"
+      className={`text-brand underline-offset-2 hover:underline ${className ?? ''}`}
     >
       {children}
     </a>

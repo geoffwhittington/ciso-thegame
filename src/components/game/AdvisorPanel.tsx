@@ -19,7 +19,7 @@ export function AdvisorPanel() {
   if (recs.length === 0) return null;
 
   return (
-    <GameSection title="Suggested spend" hint={label}>
+    <GameSection title="Suggested spend" help="advisor" hint={label}>
       <p className="text-sm text-muted-foreground mb-2">
         {level === 'blind'
           ? 'Until you assess this system, these extras follow industry frequency.'
@@ -47,11 +47,10 @@ export function AdvisorPanel() {
               {!isInfo && rec.actionKey && (
                 <Button
                   size="sm"
-                  className="shrink-0 h-10 text-sm bg-orange-500 hover:bg-orange-600 text-white"
+                  className="shrink-0 h-10 text-sm"
                   disabled={!canAfford || (rec.actionType === 'upgrade' && game.getUpgradeCost(rec.actionKey!) === null)}
                   onClick={() => {
                     if (rec.actionType === 'upgrade') game.queueUpgrade(rec.actionKey!);
-                    else if (rec.actionType === 'train') game.toggleTraining(rec.actionKey!);
                     update();
                   }}
                 >

@@ -1,4 +1,4 @@
-/** Hours of delivery work per gap. Paid in teammate hours, not board cash. */
+/** Control catalog shown after Execute is bought. Effort is unused; staff close one risk per slot. */
 export const REQUIREMENTS: Record<string, { id: string; name: string; effort: number }[]> = {
   ACCESS:  [{ id: 'T1020', name: 'Implement role-based access control', effort: 140 }, { id: 'T1021', name: 'Enforce least-privilege access policies', effort: 100 }, { id: 'T1022', name: 'Authorization checks on every endpoint', effort: 120 }],
   INJ:     [{ id: 'T1001', name: 'Validate and sanitize all user inputs', effort: 120 }, { id: 'T1002', name: 'Use parameterized queries', effort: 80 }],

@@ -1,89 +1,79 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { useGame } from './GameContext';
-import { PRODUCT_SCHEDULE } from '@/lib/products';
+import { UNUSED_CARRY_PCT, budgetRate } from '@/lib/simKnobs';
+import { ReportRow } from './ReportRow';
+import { ReviewBlock, ReviewStat } from './ReviewChrome';
 
 export function Briefing({ onBegin }: { onBegin: () => void }) {
   const { game, startOver } = useGame();
-  const firstSystem = PRODUCT_SCHEDULE[0];
+  const pct = Math.round(budgetRate(game.reputation) * 1000) / 10;
+  const carryPct = Math.round(UNUSED_CARRY_PCT * 100);
+  const live = game.products.getLiveProducts();
+  const worth = `$${(game.companyValue / 1000).toFixed(0)} million`;
+  const inPerQ = `$${(game.revenue / 1000).toFixed(0)} million`;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-5">
-      <div className="flex justify-end">
-        <button type="button" className="text-sm text-muted-foreground hover:text-foreground" onClick={startOver}>
-          Start over
-        </button>
-      </div>
-      <div className="text-center space-y-2">
-        <span className="inline-block text-sm font-bold tracking-wide text-red-500 border border-red-500/40 px-4 py-1.5 rounded-sm">CONFIDENTIAL</span>
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">CISO Briefing, Day One</h1>
-        <p className="text-sm text-muted-foreground">NovaMind AI Inc.</p>
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-8">
+      <div className="w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-xl border border-border bg-card p-6 sm:p-10 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Your first day</h1>
+            <p className="text-lg text-muted-foreground mt-2">NovaMind · you are the head of security</p>
+          </div>
+          <button type="button" className="text-lg text-muted-foreground hover:text-foreground shrink-0" onClick={startOver}>
+            Return to start
+          </button>
+        </div>
 
-      {/* Company Overview */}
-      <Card className="bg-card/50 backdrop-blur">
-        <CardContent className="pt-5 space-y-4">
-          <h2 className="text-base font-bold text-orange-400">About NovaMind</h2>
-          <p className="text-base text-muted-foreground leading-relaxed">
-            NovaMind is a <strong className="text-foreground">venture-backed AI SaaS company</strong> building enterprise AI products.
-            The engineering team builds custom software and deploys on <strong className="text-foreground">multiple public clouds</strong>.
-            The company ships code weekly, uses open-source machine-learning libraries, and is adding AI/LLM capabilities to the product line.
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+          <ReviewStat k="Company worth" v={`$${(game.companyValue / 1000).toFixed(0)}M`} />
+          <ReviewStat k="Money in / quarter" v={`$${(game.revenue / 1000).toFixed(0)}M`} />
+          <ReviewStat k="Board trust" v={`${game.reputation}/100`} />
+          <ReviewStat k="Your budget" v={`$${game.quarterlyBudget}K`} />
+        </div>
+
+        <ReviewBlock title="The company">
+          <p className="text-lg text-muted-foreground">
+            NovaMind sells AI software to other businesses. The company is worth {worth} and brings in about {inPerQ} each quarter.
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {[
-              { label: 'Valuation', value: `$${(game.companyValue / 1000).toFixed(0)}M` },
-              { label: 'Revenue', value: `$${(game.revenue / 1000).toFixed(0)}M/q` },
-              { label: 'Reputation', value: `${game.reputation}/100` },
-              { label: 'Defenses', value: `${game.securityPosture}%`, accent: true },
-            ].map(k => (
-              <div key={k.label} className="bg-background/60 rounded-lg p-2.5 text-center">
-                <div className={`text-xl font-extrabold tabular-nums ${k.accent ? 'text-red-400' : ''}`}>{k.value}</div>
-                <div className="text-sm text-muted-foreground mt-0.5">{k.label}</div>
-              </div>
+        </ReviewBlock>
+
+        <ReviewBlock title="Your money">
+          <p className="text-lg text-muted-foreground">
+            The board gave you ${game.quarterlyBudget}K this quarter to spend on security
+            {game.treasury > 0 ? ` (plus $${game.treasury}K already in the drawer)` : ''}.
+            That is about {pct}% of what the company takes in.
+            You pay to keep tools you already bought before you buy new ones.
+            If the board still trusts you, the budget goes up. If you get hacked, it goes down.
+            You can keep at most {carryPct}% of leftover money for next quarter.
+          </p>
+        </ReviewBlock>
+
+        <ReviewBlock title="Portfolio">
+          <ul className="space-y-3">
+            {live.map(p => (
+              <ReportRow key={p.id} mark={p.icon} title={p.name}>
+                Live. {p.desc}
+              </ReportRow>
             ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* First System */}
-      <Card className="bg-card/50 backdrop-blur">
-        <CardContent className="pt-5 space-y-3">
-          <h2 className="text-base font-bold text-orange-400">Your First System</h2>
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">{firstSystem.icon}</span>
-            <div>
-              <div className="font-semibold text-base">{firstSystem.name}</div>
-              <div className="text-sm text-muted-foreground mt-1 leading-relaxed">{firstSystem.desc}</div>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            More systems will be added to your portfolio as the company grows. You don't control the roadmap. You secure it.
+          </ul>
+          <p className="text-lg text-muted-foreground mt-3">
+            More products will show up later. Hackers can only hit what is live, not what is still being built.
           </p>
-        </CardContent>
-      </Card>
+        </ReviewBlock>
 
-      {/* The Challenge */}
-      <Card className="bg-card/50 backdrop-blur">
-        <CardContent className="pt-5 space-y-3">
-          <h2 className="text-base font-bold text-orange-400">The Challenge</h2>
-          <div className="text-center py-3 space-y-2">
-            <div className="text-3xl">🔒</div>
-            <p className="text-base font-bold">You don't know what you don't know.</p>
-            <p className="text-sm text-muted-foreground">
-              Your systems have real security gaps. Risk assessment, guidance, then the matching tools.
-            </p>
-          </div>
-          <div className="text-center text-sm font-semibold text-orange-400 bg-orange-500/8 border border-orange-500/20 rounded-lg py-2.5">
-            If reputation hits zero, the board fires you. Last {game.maxTurns} quarters
-            ({game.getCalendarQuarter(1)} to {game.getCalendarQuarter(game.maxTurns)}) to reach {game.getWinLabel()}.
-          </div>
-        </CardContent>
-      </Card>
+        <ReviewBlock title="Your job">
+          <p className="text-lg text-muted-foreground">
+            You have {game.maxTurns} quarters ({game.getCalendarQuarter(1)} to {game.getCalendarQuarter(game.maxTurns)}).
+            Keep board trust above 0. If it hits 0, you are out.
+          </p>
+        </ReviewBlock>
 
-      <div className="text-center pt-2 pb-6">
-        <Button size="lg" className="text-base px-12 py-6 font-bold bg-orange-500 hover:bg-orange-600 text-white" onClick={onBegin}>
-          Begin {game.getCalendarQuarter(1)} →
-        </Button>
+        <div className="flex justify-end mt-8">
+          <Button size="lg" className="text-lg px-8" onClick={onBegin}>
+            Start the job
+          </Button>
+        </div>
       </div>
     </div>
   );
