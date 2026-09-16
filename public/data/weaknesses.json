@@ -1,0 +1,183 @@
+{
+  "ACCESS": {
+    "id": "CWE-862", "name": "Broken Access Control", "label": "Access & Authorization",
+    "quarterlyProb": 0.50, "severity": 3, "category": "OWASP",
+    "desc": "Restrictions on authenticated users not properly enforced",
+    "source": "OWASP Top 10", "citation": "A01:2021 — #1 web application security risk",
+    "sourceUrl": "https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+    "annualRate": "94% of apps tested had some form of broken access control",
+    "mitigations": [
+      { "requires": { "identity": 2 }, "effectiveness": 0.4, "hint": "Basic IAM policies reduce unauthorized access" },
+      { "requires": { "identity": 3, "grc": 2 }, "effectiveness": 0.7, "hint": "Mature IAM + policy enforcement" },
+      { "requires": { "identity": 4, "grc": 3, "siem": 2 }, "effectiveness": 1.0, "hint": "Zero-trust access with continuous monitoring" }
+    ]
+  },
+  "INJ": {
+    "id": "CWE-74", "name": "Injection", "label": "Input Validation",
+    "quarterlyProb": 0.45, "severity": 3, "category": "OWASP",
+    "desc": "Untrusted data sent to interpreter",
+    "source": "OWASP Top 10", "citation": "A03:2021 — 94% of apps tested for injection",
+    "sourceUrl": "https://owasp.org/Top10/A03_2021-Injection/",
+    "annualRate": "3.37% incidence rate across tested applications",
+    "mitigations": [
+      { "requires": { "appSec": 2 }, "effectiveness": 0.5, "hint": "SAST/DAST catches common injection flaws" },
+      { "requires": { "appSec": 3, "awareness": 2 }, "effectiveness": 0.8, "hint": "AppSec tooling + developer training" },
+      { "requires": { "appSec": 4, "awareness": 3, "network": 2 }, "effectiveness": 1.0, "hint": "Full input validation program with WAF" }
+    ]
+  },
+  "MISCONF": {
+    "id": "CWE-16", "name": "Security Misconfiguration", "label": "Configuration & Hardening",
+    "quarterlyProb": 0.40, "severity": 2, "category": "OWASP",
+    "desc": "Insecure defaults, incomplete config",
+    "source": "OWASP Top 10", "citation": "A05:2021 — 90% of apps tested for misconfiguration",
+    "sourceUrl": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+    "annualRate": "23% of breaches involve misconfiguration errors (DBIR 2024)",
+    "mitigations": [
+      { "requires": { "cloud": 1 }, "effectiveness": 0.4, "hint": "Basic CSPM catches obvious misconfigs" },
+      { "requires": { "cloud": 3, "endpoint": 2 }, "effectiveness": 0.8, "hint": "Cloud security + endpoint hardening" },
+      { "requires": { "cloud": 4, "endpoint": 3, "grc": 2 }, "effectiveness": 1.0, "hint": "Infrastructure-as-code with compliance checks" }
+    ]
+  },
+  "AUTH": {
+    "id": "CWE-287", "name": "Broken Authentication", "label": "Authentication & Sessions",
+    "quarterlyProb": 0.35, "severity": 3, "category": "OWASP",
+    "desc": "Auth and session management flaws",
+    "source": "OWASP Top 10", "citation": "A07:2021 — Identification and Authentication Failures",
+    "sourceUrl": "https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/",
+    "annualRate": "31% of breaches use stolen credentials (DBIR 2024)",
+    "mitigations": [
+      { "requires": { "identity": 2 }, "effectiveness": 0.5, "hint": "MFA blocks most credential attacks" },
+      { "requires": { "identity": 3, "awareness": 2 }, "effectiveness": 0.85, "hint": "Strong IAM + phishing-aware workforce" },
+      { "requires": { "identity": 4, "awareness": 3, "siem": 3 }, "effectiveness": 1.0, "hint": "Adaptive auth with anomaly detection" }
+    ]
+  },
+  "VULN": {
+    "id": "CWE-1104", "name": "Vulnerable Components", "label": "Dependency & Component Security",
+    "quarterlyProb": 0.35, "severity": 3, "category": "OWASP",
+    "desc": "Components with known vulnerabilities",
+    "source": "OWASP Top 10", "citation": "A06:2021 — Vulnerable and Outdated Components",
+    "sourceUrl": "https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/",
+    "annualRate": "Exploitation of vulns up 180% YoY (DBIR 2024)",
+    "mitigations": [
+      { "requires": { "appSec": 2 }, "effectiveness": 0.5, "hint": "SCA scanning catches known CVEs" },
+      { "requires": { "appSec": 3, "ir": 2 }, "effectiveness": 0.85, "hint": "Automated scanning + rapid patch process" },
+      { "requires": { "appSec": 4, "ir": 3, "grc": 2 }, "effectiveness": 1.0, "hint": "Full SBOM + vulnerability management program" }
+    ]
+  },
+  "EXPOSE": {
+    "id": "CWE-200", "name": "Sensitive Data Exposure", "label": "Data Protection",
+    "quarterlyProb": 0.30, "severity": 4, "category": "OWASP",
+    "desc": "Sensitive data not adequately protected",
+    "source": "OWASP Top 10", "citation": "A02:2021 — Cryptographic Failures",
+    "sourceUrl": "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+    "annualRate": "15% of breaches involve data disclosure (DBIR 2024)",
+    "mitigations": [
+      { "requires": { "dataProtect": 2 }, "effectiveness": 0.4, "hint": "Basic encryption and classification" },
+      { "requires": { "dataProtect": 3, "cloud": 2 }, "effectiveness": 0.7, "hint": "DLP + cloud data security" },
+      { "requires": { "dataProtect": 4, "cloud": 3, "secTeam": 2 }, "effectiveness": 1.0, "hint": "Full data governance with dedicated staff" }
+    ]
+  },
+  "LOG": {
+    "id": "CWE-778", "name": "Insufficient Logging", "label": "Logging & Monitoring",
+    "quarterlyProb": 0.25, "severity": 2, "category": "OWASP",
+    "desc": "Insufficient logging and monitoring",
+    "source": "OWASP Top 10", "citation": "A09:2021 — Security Logging and Monitoring Failures",
+    "sourceUrl": "https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/",
+    "annualRate": "Avg 204 days to identify a breach without monitoring (IBM CODB 2024)",
+    "mitigations": [
+      { "requires": { "siem": 2 }, "effectiveness": 0.6, "hint": "Centralized logging catches most events" },
+      { "requires": { "siem": 3, "ir": 2 }, "effectiveness": 1.0, "hint": "Full SIEM with detection and response playbooks" }
+    ]
+  },
+  "SSRF": {
+    "id": "CWE-918", "name": "SSRF", "label": "Network Request Controls",
+    "quarterlyProb": 0.15, "severity": 3, "category": "OWASP",
+    "desc": "Server-side request forgery",
+    "source": "OWASP Top 10", "citation": "A10:2021 — Server-Side Request Forgery, new in 2021",
+    "sourceUrl": "https://owasp.org/Top10/A10_2021-Server-Side_Request_Forgery_%28SSRF%29/",
+    "annualRate": "2% incidence rate, rising with cloud adoption",
+    "mitigations": [
+      { "requires": { "network": 2 }, "effectiveness": 0.5, "hint": "Network segmentation limits blast radius" },
+      { "requires": { "network": 3, "appSec": 2 }, "effectiveness": 0.85, "hint": "Segmentation + request validation" },
+      { "requires": { "network": 4, "appSec": 3, "cloud": 2 }, "effectiveness": 1.0, "hint": "Full egress controls with app-layer checks" }
+    ]
+  },
+  "SUPPLY": {
+    "id": "CWE-1357", "name": "Supply Chain", "label": "Supply Chain Integrity",
+    "quarterlyProb": 0.15, "severity": 4, "category": "OWASP",
+    "desc": "Compromise through third-party components",
+    "source": "Verizon DBIR 2024", "citation": "Figure 50 — Supply chain breaches up 68% YoY",
+    "sourceUrl": "https://www.verizon.com/business/resources/reports/dbir/",
+    "annualRate": "15% of breaches involve supply chain (DBIR 2024)",
+    "mitigations": [
+      { "requires": { "appSec": 2 }, "effectiveness": 0.3, "hint": "Basic dependency scanning" },
+      { "requires": { "appSec": 3, "grc": 2 }, "effectiveness": 0.65, "hint": "SCA + vendor risk assessment" },
+      { "requires": { "appSec": 4, "grc": 3, "secTeam": 3 }, "effectiveness": 1.0, "hint": "Full supply chain security program" }
+    ]
+  },
+  "PROMPT": {
+    "id": "OWASP-LLM01", "name": "Prompt Injection", "label": "AI Input/Output Controls",
+    "quarterlyProb": 0.35, "severity": 4, "category": "AI/LLM",
+    "desc": "Manipulating LLM via crafted inputs",
+    "source": "OWASP LLM Top 10", "citation": "LLM01:2025 — #1 LLM security risk",
+    "sourceUrl": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
+    "annualRate": "35% of AI-deploying orgs report prompt injection attempts (industry survey)",
+    "mitigations": [
+      { "requires": { "aiSecurity": 2 }, "effectiveness": 0.3, "hint": "Basic prompt guardrails" },
+      { "requires": { "aiSecurity": 3, "appSec": 2 }, "effectiveness": 0.6, "hint": "Guardrails + input validation testing" },
+      { "requires": { "aiSecurity": 4, "appSec": 3, "awareness": 3 }, "effectiveness": 1.0, "hint": "Defense-in-depth: guardrails, testing, trained operators" }
+    ]
+  },
+  "LEAK": {
+    "id": "OWASP-LLM06", "name": "Sensitive Data in Output", "label": "AI Data Leakage Prevention",
+    "quarterlyProb": 0.20, "severity": 4, "category": "AI/LLM",
+    "desc": "LLM reveals PII or training data",
+    "source": "OWASP LLM Top 10", "citation": "LLM06:2025 — Sensitive Information Disclosure",
+    "sourceUrl": "https://genai.owasp.org/llmrisk/llm06-sensitive-information-disclosure/",
+    "annualRate": "20% of AI-deploying orgs report data leakage incidents (industry survey)",
+    "mitigations": [
+      { "requires": { "aiSecurity": 2, "dataProtect": 1 }, "effectiveness": 0.4, "hint": "Output filtering + basic DLP" },
+      { "requires": { "aiSecurity": 3, "dataProtect": 3 }, "effectiveness": 0.8, "hint": "AI guardrails + data classification" },
+      { "requires": { "aiSecurity": 4, "dataProtect": 4, "siem": 2 }, "effectiveness": 1.0, "hint": "Full output monitoring with data governance" }
+    ]
+  },
+  "AGENCY": {
+    "id": "OWASP-LLM08", "name": "Excessive Agency", "label": "Agent Autonomy Controls",
+    "quarterlyProb": 0.25, "severity": 4, "category": "AI/LLM",
+    "desc": "LLM granted excessive autonomy",
+    "source": "OWASP LLM Top 10", "citation": "LLM08:2025 — Excessive Agency",
+    "sourceUrl": "https://genai.owasp.org/llmrisk/llm08-excessive-agency/",
+    "annualRate": "25% of AI-deploying orgs report agent misuse (industry survey)",
+    "mitigations": [
+      { "requires": { "aiSecurity": 2, "identity": 2 }, "effectiveness": 0.4, "hint": "Agent permissions + basic IAM" },
+      { "requires": { "aiSecurity": 3, "identity": 3, "siem": 2 }, "effectiveness": 0.75, "hint": "Scoped access + monitoring for anomalies" },
+      { "requires": { "aiSecurity": 5, "identity": 4, "siem": 3, "secTeam": 3 }, "effectiveness": 1.0, "hint": "Human-in-the-loop + full agent governance" }
+    ]
+  },
+  "POISON": {
+    "id": "OWASP-LLM03", "name": "Training Data Poisoning", "label": "Training Pipeline Security",
+    "quarterlyProb": 0.08, "severity": 5, "category": "AI/LLM",
+    "desc": "Manipulation of training data",
+    "source": "OWASP LLM Top 10", "citation": "LLM03:2025 — MITRE ATLAS case study CS0012",
+    "sourceUrl": "https://genai.owasp.org/llmrisk/llm03-training-data-poisoning/",
+    "annualRate": "8% of ML pipelines found to have integrity issues (MITRE ATLAS)",
+    "mitigations": [
+      { "requires": { "aiSecurity": 3 }, "effectiveness": 0.3, "hint": "Model behavior monitoring" },
+      { "requires": { "aiSecurity": 4, "dataProtect": 3 }, "effectiveness": 0.65, "hint": "Data provenance + anomaly detection" },
+      { "requires": { "aiSecurity": 5, "dataProtect": 4, "appSec": 3, "secTeam": 3 }, "effectiveness": 1.0, "hint": "Full pipeline integrity with dedicated AI security team" }
+    ]
+  },
+  "THEFT": {
+    "id": "OWASP-LLM10", "name": "Model Theft", "label": "Model IP Protection",
+    "quarterlyProb": 0.10, "severity": 4, "category": "AI/LLM",
+    "desc": "Unauthorized copying of models",
+    "source": "OWASP LLM Top 10", "citation": "LLM10:2025 — MITRE ATLAS case study CS0010",
+    "sourceUrl": "https://genai.owasp.org/llmrisk/llm10-model-theft/",
+    "annualRate": "10% of AI-deploying orgs report model extraction attempts (MITRE ATLAS)",
+    "mitigations": [
+      { "requires": { "identity": 2, "network": 2 }, "effectiveness": 0.4, "hint": "API access controls + rate limiting" },
+      { "requires": { "identity": 3, "network": 3, "aiSecurity": 2 }, "effectiveness": 0.75, "hint": "Strong access controls + model fingerprinting" },
+      { "requires": { "identity": 4, "network": 4, "aiSecurity": 3, "siem": 3 }, "effectiveness": 1.0, "hint": "Full model access governance with query monitoring" }
+    ]
+  }
+}

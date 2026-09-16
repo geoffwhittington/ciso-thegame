@@ -1,0 +1,47 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Stray env / temp / cache files that landed in this working dir
+.X11-unix
+snap-private-tmp
+ssh-*
+systemd-private-*
+tmp.*
+cursor-distro-env.*
+remote-wsl-loc.txt
+node-compile-cache
+fastembed_cache
+update-check
+vscode-typescript*
+claude-*
+shadcn-*
+uv-*.lock
+multica-backup
+
+# Local research scratch
+resbot_search.py
+resbot_search.sh
+resbot_xss_search.sh
+search_apra.py
