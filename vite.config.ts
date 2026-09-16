@@ -4,6 +4,8 @@ import { defineConfig } from 'vite'
 import path from 'path'
 
 export default defineConfig({
+  // Served from https://<user>.github.io/ciso-thegame/ on GitHub Pages.
+  base: process.env.GITHUB_PAGES ? '/ciso-thegame/' : '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

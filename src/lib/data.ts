@@ -29,7 +29,8 @@ export interface Weakness {
 export let WEAKNESSES: Record<string, Weakness> = {};
 
 export async function loadWeaknesses(): Promise<void> {
-  const resp = await fetch('/data/weaknesses.json');
+  // Base-relative so it resolves under a GitHub Pages subpath (import.meta.env.BASE_URL).
+  const resp = await fetch(`${import.meta.env.BASE_URL}data/weaknesses.json`);
   WEAKNESSES = await resp.json();
 }
 

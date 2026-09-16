@@ -238,7 +238,7 @@ export function LabBarChart({ title, subtitle, series, sources, goal }: { title:
   );
 }
 
-export function LabLineChart({ title, series, sources }: { title: string; series: Series[]; sources?: EvidenceCite[] }) {
+export function LabLineChart({ title, subtitle, series, sources, goal }: { title: string; subtitle?: string; series: Series[]; sources?: EvidenceCite[]; goal?: Goal }) {
   const w = CHART_W;
   const h = 280;
   const pad = { l: 56, r: 16, t: 16, b: 32 };
@@ -259,7 +259,7 @@ export function LabLineChart({ title, series, sources }: { title: string; series
 
   return (
     <div>
-      <ChartHeader title={title} sources={sources} />
+      <ChartHeader title={title} subtitle={subtitle} sources={sources} goal={goal} />
       <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" role="img" aria-label={title}>
         {[0, 50, 100].map(tick => {
           const y = pad.t + innerH * (1 - tick / 100);

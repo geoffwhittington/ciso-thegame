@@ -152,11 +152,13 @@ export function play(strategy: StrategyId, seed: number, maxTurns = 20, knobs?: 
       game.reset(maxTurns);
     }
     game.phase = 'budget';
-    while (game.phase !== 'gameover' && game.turn <= maxTurns) {
+    // endQuarter() mutates phase; read it widened so control-flow narrowing doesn't fight us.
+    const phase = () => game.phase as GameEngine['phase'];
+    while (phase() !== 'gameover' && game.turn <= maxTurns) {
       game.phase = 'budget';
       applyStrategy(game, strategy);
       game.endQuarter();
-      if (game.phase === 'gameover') break;
+      if (phase() === 'gameover') break;
       game.nextTurn();
     }
     const capKeys = Object.keys(DEFENSES).filter(k => DEFENSES[k].type === 'capability');

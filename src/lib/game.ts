@@ -82,7 +82,7 @@ export class GameEngine {
   quietStreak = 0;
   quietBonus = 0;
 
-  attackLog: { turn: number; name: string; severity: number; result: string; productsHit: number }[] = [];
+  attackLog: { turn: number; name: string; severity: number; result: string; productsHit: number; lossK?: number }[] = [];
   turnLog: { type: string; data: any }[] = [];
   fullLog: { turn: number; entries: any[] }[] = [];
 
