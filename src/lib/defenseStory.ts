@@ -21,18 +21,18 @@ export const DEFENSE_STORY: Record<string, { covers: string; levels: string[] }>
   threatModel: {
     covers: 'Predict which attacks can hit each product so you fund the right defenses',
     levels: [
-      'Anticipate common web/cloud attacks (phishing, open settings, injection)',
-      'Also anticipate AI attacks (prompt tricks, agent abuse)',
+      'Find which attacks can hit each product so you fund the right defenses',
+      'Also cover AI attacks (prompt tricks, agent abuse)',
       'Most products’ attack picture is visible',
       'Keeps up as new products launch',
       'Almost no attack type stays hidden',
     ],
   },
   reqMgmt: {
-    covers: 'Execute: requirements and training so a purchased control actually stops the attack',
+    covers: 'Security requirements and training so a purchased control actually stops the attack',
     levels: [
       'Starter controls are applied as intended',
-      'Working programs get applied as intended',
+      'Working controls get applied as intended',
       'Established controls get applied as intended',
       'Advanced controls get applied as intended',
       'Elite controls get applied as intended',

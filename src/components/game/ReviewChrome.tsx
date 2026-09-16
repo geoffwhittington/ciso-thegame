@@ -12,11 +12,11 @@ export function ReviewStat({ k, v, tone }: { k: string; v: string; tone?: 'breac
     tone === 'limited' ? 'text-amber-200' :
     '';
   return (
-    <div className={`rounded-xl border px-4 py-4 ${box}`}>
-      <div className="text-base text-muted-foreground">{k}</div>
-      <div className={`text-2xl sm:text-3xl font-bold mt-1 tabular-nums ${value}`}>
-        {tone === 'breach' && <span className="mr-2" aria-hidden>🚨</span>}
-        {tone === 'clear' && <span className="mr-2" aria-hidden>✅</span>}
+    <div className={`rounded-lg border px-3 py-2 ${box}`}>
+      <div className="text-xs text-muted-foreground">{k}</div>
+      <div className={`text-lg font-bold mt-0.5 tabular-nums ${value}`}>
+        {tone === 'breach' && <span className="mr-1.5" aria-hidden>🚨</span>}
+        {tone === 'clear' && <span className="mr-1.5" aria-hidden>✅</span>}
         {v}
       </div>
     </div>
@@ -25,8 +25,8 @@ export function ReviewStat({ k, v, tone }: { k: string; v: string; tone?: 'breac
 
 export function ReviewBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="mt-8 pt-6 border-t border-border">
-      <h2 className="text-xl font-bold mb-3">{title}</h2>
+    <section className="mt-3 pt-3 border-t border-border">
+      <h2 className="text-sm font-bold mb-1.5">{title}</h2>
       {children}
     </section>
   );

@@ -20,34 +20,34 @@ export function ReportIncidents({
   attacks: AttackEntry[];
 }) {
   if (attacks.length === 0) {
-    return <p className="text-lg text-muted-foreground">No incidents against production this quarter.</p>;
+    return <p className="text-sm text-muted-foreground">No incidents against production this quarter.</p>;
   }
 
   return (
-    <ul className="space-y-4">
+    <ul className="space-y-2">
       {attacks.map((e, i) => {
         const breach = e.data.result === 'breach';
         const resultWord = e.data.result === 'blocked' ? 'Prevented' : e.data.result === 'contained' ? 'Limited' : 'Breach';
         return (
           <li
             key={i}
-            className={`rounded-xl border px-4 py-4 ${
+            className={`rounded-lg border px-3 py-2.5 ${
               breach ? 'border-red-500/60 bg-red-500/10 ciso-breach-banner' :
               e.data.result === 'contained' ? 'border-amber-400/50 bg-amber-400/10' :
               'border-emerald-500/40 bg-emerald-500/5'
             }`}
           >
-            <div className="flex items-start gap-3">
-              <span className="text-3xl leading-none" aria-hidden>
+            <div className="flex items-start gap-2.5">
+              <span className="text-lg leading-none mt-0.5" aria-hidden>
                 {breach ? '🚨' : e.data.result === 'contained' ? '⚠️' : '✅'}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-xl font-bold">
+                <p className="text-sm font-semibold">
                   {resultWord}: {e.data.name}
                 </p>
-                <p className="text-lg text-muted-foreground mt-2">{e.data.reason}</p>
+                <p className="text-sm text-muted-foreground mt-1">{e.data.reason}</p>
                 {e.data.source && (
-                  <p className="text-lg text-muted-foreground mt-2">
+                  <p className="text-sm text-muted-foreground mt-1">
                     <CiteLink href={e.data.sourceUrl || urlForCitation(e.data.citation || '', e.data.source)}>
                       {e.data.source}
                     </CiteLink>
@@ -55,7 +55,7 @@ export function ReportIncidents({
                   </p>
                 )}
                 {e.data.coverageNote && (
-                  <p className="text-lg mt-2">{e.data.coverageNote}</p>
+                  <p className="text-sm mt-1">{e.data.coverageNote}</p>
                 )}
               </div>
             </div>

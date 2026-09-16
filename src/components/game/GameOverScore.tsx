@@ -11,7 +11,7 @@ export function GameOverScore() {
     { label: 'Defense posture', value: `+${b.posturePts}`, hint: `${game.securityPosture}%` },
     { label: 'Attacks stopped', value: `+${b.blockedPts}`, hint: `${game.totalBlocked} blocked`, tone: 'text-emerald-300' },
     { label: 'Controls bought', value: `+${b.defensePts}` },
-    { label: 'Anticipate and execute', value: `+${b.toolPts}`, hint: 'Risk assessment + guidance', tone: 'text-brand' },
+    { label: 'Threat modeling and requirements', value: `+${b.toolPts}`, hint: 'Find the gaps + tell the team how', tone: 'text-brand' },
     { label: 'Quiet quarters', value: `+${b.quietPts}`, hint: `${game.quietBonus} pts from calm quarters`, tone: 'text-emerald-300' },
     { label: 'Breaches', value: `-${b.breachPenalty}`, hint: `${game.totalBreaches}`, tone: 'text-red-300' },
   ];

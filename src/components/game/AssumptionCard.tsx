@@ -1,41 +1,43 @@
 import { CiteLink } from './CiteLink';
 import { assumptionById, type AssumptionId } from '@/lib/assumptions';
 
-export function AssumptionCard({ id }: { id: AssumptionId }) {
+export function AssumptionCard({ id, hideTitle }: { id: AssumptionId; hideTitle?: boolean }) {
   const a = assumptionById(id);
   if (!a) return null;
   const paired = a.citations.length === a.basis.length;
   return (
-    <article className="overflow-hidden rounded-lg border border-border bg-muted/25">
-      <h3 className="bg-[#12294d] border-b-2 border-brand px-3.5 py-2 text-sm font-semibold leading-snug text-white">
-        {a.title}
-      </h3>
-      <div className="p-3.5 space-y-3">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">In this simulation</p>
-          <p className="text-sm mt-1 leading-relaxed">{a.mechanic}</p>
-        </div>
-        <div className="space-y-2 border-t border-border pt-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Published basis</p>
+    <article className="space-y-6">
+      {!hideTitle && (
+        <h3 className="text-xl font-bold tracking-tight">{a.title}</h3>
+      )}
+      <section>
+        <h4 className="text-xl font-bold mb-2">In this simulation</h4>
+        <p className="text-lg text-muted-foreground leading-relaxed">{a.mechanic}</p>
+      </section>
+      <section className="pt-6 border-t border-border">
+        <h4 className="text-xl font-bold mb-3">Published basis</h4>
+        <ul className="space-y-3">
           {paired ? a.citations.map((c, i) => (
-            <div key={c.url + i} className="rounded-md bg-background/60 border border-border/70 px-3 py-2 space-y-1.5">
-              <p className="text-sm leading-relaxed">{a.basis[i]}</p>
-              <CiteLink href={c.url} className="text-sm">{c.label}</CiteLink>
-            </div>
+            <li key={c.url + i} className="rounded-xl border border-border bg-background/40 px-4 py-3.5">
+              <p className="text-lg text-foreground leading-relaxed">{a.basis[i]}</p>
+              <p className="mt-2">
+                <CiteLink href={c.url} className="text-base">{c.label}</CiteLink>
+              </p>
+            </li>
           )) : (
-            <div className="rounded-md bg-background/60 border border-border/70 px-3 py-2 space-y-2">
+            <li className="rounded-xl border border-border bg-background/40 px-4 py-3.5 space-y-2">
               {a.basis.map(text => (
-                <p key={text} className="text-sm leading-relaxed">{text}</p>
+                <p key={text} className="text-lg text-foreground leading-relaxed">{text}</p>
               ))}
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 pt-1">
                 {a.citations.map(c => (
-                  <CiteLink key={c.url} href={c.url} className="text-sm">{c.label}</CiteLink>
+                  <CiteLink key={c.url} href={c.url} className="text-base">{c.label}</CiteLink>
                 ))}
               </div>
-            </div>
+            </li>
           )}
-        </div>
-      </div>
+        </ul>
+      </section>
     </article>
   );
 }

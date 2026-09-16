@@ -20,7 +20,7 @@ export function InvestmentsPanel() {
   return (
     <GameSection title="Security Investments" help="investments">
       <div className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-        Anticipate &amp; execute
+        Threat modeling &amp; requirements
         <AssumptionsHelp topic="anticipate" label="Why" />
       </div>
       <div className="space-y-0.5">{tools.map(e => <DefenseRow key={e[0]} defKey={e[0]} def={e[1]} game={game} update={update} relevant={true} />)}</div>
@@ -29,7 +29,7 @@ export function InvestmentsPanel() {
       <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
         <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-brand" /> Bought</span>
         <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-yellow-300" /> This quarter</span>
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-cyan-300" /> Targeted (Anticipate + Execute)</span>
+        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-cyan-300" /> Targeted (threat modeling + requirements)</span>
         <AssumptionsHelp topic="guided" label="Why" />
       </div>
       <div className="space-y-0.5">{sorted.map(e => <DefenseRow key={e[0]} defKey={e[0]} def={e[1]} game={game} update={update} relevant={relevant.has(e[0])} />)}</div>

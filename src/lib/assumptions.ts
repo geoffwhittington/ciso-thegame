@@ -32,22 +32,22 @@ const ibm = GUIDANCE_EVIDENCE[4];
 export const ASSUMPTIONS: Assumption[] = [
   {
     id: 'anticipate',
-    title: 'Anticipate risks',
-    mechanic: 'Buying this investment reveals gaps on in-scope systems. Without it, controls still apply generically and the board sees industry-level estimates.',
+    title: 'Threat modeling',
+    mechanic: 'Buying threat modeling shows the gaps on products in scope. Without it, controls still apply as a generic setup and the board only sees industry-level estimates.',
     basis: [howard.claim],
     citations: [{ label: howard.citation, url: howard.url }],
   },
   {
     id: 'execute',
-    title: 'Execute controls',
-    mechanic: 'Staff can close listed gaps only after this investment exists. Generic controls still apply across products without it.',
+    title: 'Security requirements',
+    mechanic: 'Staff can close listed gaps only after security requirements exist. Generic controls still apply across products without them.',
     basis: [lipnerExec.claim],
     citations: [{ label: lipnerExec.citation, url: lipnerExec.url }],
   },
   {
     id: 'guided',
-    title: 'Prediction and execution strengthen controls',
-    mechanic: 'Controls work at purchased level without Anticipate. Unlisted gaps get generic coverage (weaker). Listed gaps get the full matched path. A sized TM+RM program also cuts remaining attack volume by about half (SDL defect rates), not stacked again into dollars.',
+    title: 'Threat modeling and requirements strengthen controls',
+    mechanic: 'You can buy security tools without threat modeling. They still help a little — like the same generic lock on every door. Threat modeling writes down the real weak spots. Security requirements tell the team how to use the tools on those spots, so the tools work much better. Doing both also means fewer attacks show up — about half as many, from studies of building software securely.',
     basis: [howard.claim, lipnerWin.claim],
     citations: [
       { label: howard.citation, url: howard.url },

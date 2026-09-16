@@ -4,14 +4,16 @@ import { DEFENSES, DEFENSE_DEPENDENCIES, MAX_DEFENSE_LEVEL, levelMeaning, defens
 type GameLike = {
   defenses: Record<string, number>;
   pendingUpgrades: Record<string, number>;
-  quarterDegradations: { key: string }[];
+  quarterDegradations: { key: string; text: string }[];
   getUpgradeCost: (key: string) => number | null;
   getPendingSetupCost: (key: string) => number;
   getAvailableBudget: () => number;
   getEffectiveDefenseLevel: (key: string) => number;
   getGuidanceLevel: () => number;
   getLevelCap: (key: string) => number;
-  hasOpsPenalty: (key: string) => boolean;
+  getAlertOverflow: () => number;
+  getAnticipatedNeed: (key: string) => number;
+  threatModelLevel: number;
   cancelUpgrade: (key: string) => void;
   queueUpgrade: (key: string) => void;
 };
@@ -27,7 +29,9 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
   const nextCost = cost ?? def.setupCost;
   const canAfford = cost !== null && cost <= game.getAvailableBudget();
   const isTool = def.type === 'tool';
-  const opsHit = game.hasOpsPenalty(defKey);
+  const setback = game.quarterDegradations.find(d => d.key === defKey);
+  const alertOverload = def.alertLoad > 0 && game.getAlertOverflow() > 0;
+  const opsHit = !!setback || alertOverload;
   const effLevel = game.getEffectiveDefenseLevel(defKey);
   const dep = DEFENSE_DEPENDENCIES[defKey];
   const cap = game.getLevelCap(defKey);
@@ -38,20 +42,36 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
   const afterQuarter = level + pending;
   const alignedSoon = Math.min(tmSoon, rmSoon);
   const rmAligned = !isTool && alignedSoon > 0 && afterQuarter > 0 && alignedSoon >= afterQuarter;
+  const need = !isTool ? game.getAnticipatedNeed(defKey) : 0;
+  const recommended = relevant && game.threatModelLevel > 0 && need > eff;
+  const accent = pending ? 'border-l-2 border-l-brand pl-2 -ml-2' : recommended ? 'border-l-2 border-l-amber-400 pl-2 -ml-2' : '';
 
   return (
-    <div className={`${!relevant ? 'opacity-25' : ''} ${pending ? 'border-l-2 border-l-brand pl-2 -ml-2' : ''}`}>
+    <div className={`${!relevant ? 'opacity-25' : ''} ${accent}`}>
       <div className="flex items-center gap-2 py-2.5 border-b border-border/20">
         <button className="text-muted-foreground hover:text-foreground text-base shrink-0" onClick={() => setShowHelp(!showHelp)} aria-label="What is this">
           {showHelp ? '✕' : 'ⓘ'}
         </button>
         <span className="text-lg shrink-0 w-7 text-center">{def.icon}</span>
         <div className="min-w-0 flex-1">
-          <div className="font-semibold text-sm truncate">{def.name}</div>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-semibold text-sm truncate">{def.name}</span>
+            {recommended && (
+              <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-amber-300 bg-amber-400/10 border border-amber-400/30 rounded px-1.5 py-0.5">
+                Threat model · aim Lv{need}
+              </span>
+            )}
+          </div>
           <div className="text-xs text-muted-foreground leading-snug">{defenseCovers(defKey)}</div>
           {(opsHit || (level > 0 && effLevel < level)) && (
             <div className="text-xs text-yellow-200">
-              {workingLine(opsHit, level, effLevel)}
+              {workingLine({
+                setbackText: setback?.text,
+                alertOverload,
+                owned: level,
+                working: effLevel,
+                missing: missingReqNames(defKey, game, level),
+              })}
             </div>
           )}
           {!isTool && level > 0 && !opsHit && game.getGuidanceLevel() <= 0 && (
@@ -62,7 +82,7 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
           {Array.from({ length: cap }, (_, i) => (
             <div
               key={i}
-              className={`h-2.5 w-2.5 rounded-full ${dotShade(i, level, pending, cap, rmAligned)}`}
+              className={`h-2.5 w-2.5 rounded-full ${dotShade(i, level, pending, cap, rmAligned)} ${recommended && i >= eff && i < need ? 'ring-1 ring-amber-400' : ''}`}
             />
           ))}
         </div>
@@ -104,7 +124,7 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
           <div>{def.desc}</div>
           <div>
             Each + adds one level. Next: ${nextCost}K this quarter, then ${def.maintainCost}K every quarter.
-            {isTool ? ' Level 1 stands up the program. Extra levels find more hidden risks.' : ' Each extra level costs the same as the first.'}
+            {isTool ? ` Level 1 stands up ${def.name.toLowerCase()}. Extra levels cover more of the estate.` : ' Each extra level costs the same as the first.'}
           </div>
           <div className="space-y-0.5 pt-1">
             {Array.from({ length: MAX_DEFENSE_LEVEL }, (_, i) => {
@@ -118,7 +138,7 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
             })}
           </div>
           {!isTool && (
-            <div>Applies as generic coverage without Anticipate. Listed gaps and extra lift need Anticipate plus Execute.</div>
+            <div>Applies as a generic setup without threat modeling. Listed gaps need threat modeling plus security requirements.</div>
           )}
           {def.helps.length > 0 && <div>Stops: <strong className="text-foreground">{countersPlain(def.helps)}</strong></div>}
           {def.alertLoad > 0 && <div>Generates <strong className="text-brand">{def.alertLoad} alerts/level</strong>. Needs Security Staff or those tools run one level weaker.</div>}
@@ -140,10 +160,43 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
   );
 }
 
-function workingLine(opsHit: boolean, owned: number, working: number): string {
-  if (opsHit && working === 0) return 'Setback or alert overload. Not stopping attacks right now.';
-  if (opsHit) return 'Setback or alert overload. One level weaker.';
-  return `Only ${working} of ${owned} is working.`;
+function missingReqNames(defKey: string, game: GameLike, ownedLevel: number): string[] {
+  const dep = DEFENSE_DEPENDENCIES[defKey];
+  if (!dep?.requires) return [];
+  const names: string[] = [];
+  for (const [reqKey, reqVal] of Object.entries(dep.requires)) {
+    const have = game.defenses[reqKey] || 0;
+    const needed = reqVal === 'level' ? ownedLevel : reqVal === 'level+1' ? ownedLevel + 1 : reqVal;
+    if (have < needed) {
+      const name = DEFENSES[reqKey]?.name;
+      if (name) names.push(name);
+    }
+  }
+  return names;
+}
+
+function workingLine(opts: {
+  setbackText?: string;
+  alertOverload: boolean;
+  owned: number;
+  working: number;
+  missing: string[];
+}): string {
+  const { setbackText, alertOverload, owned, working, missing } = opts;
+  const effect = working === 0 ? 'Not stopping attacks this quarter.' : 'Runs one level weaker this quarter.';
+  if (setbackText && alertOverload) {
+    return `${setbackText} Also more alerts than staff can handle. ${effect} Hire staff.`;
+  }
+  if (setbackText) return `${setbackText} ${effect}`;
+  if (alertOverload) {
+    return working === 0
+      ? 'More alerts than staff can handle. Not stopping attacks this quarter. Hire Security Staff.'
+      : 'More alerts than staff can handle. Runs one level weaker until you hire Security Staff.';
+  }
+  if (missing.length > 0) {
+    return `Needs ${missing.join(', ')}. Only ${working} of ${owned} ${owned === 1 ? 'is' : 'are'} working.`;
+  }
+  return `Only ${working} of ${owned} ${owned === 1 ? 'is' : 'are'} working.`;
 }
 
 function dotShade(i: number, owned: number, pending: number, cap: number, rmAligned: boolean): string {

@@ -1,6 +1,8 @@
 import {
   Dialog, DialogTrigger, DialogPortal, DialogBackdrop, DialogPopup, DialogTitle, DialogClose,
 } from '@/components/ui/dialog';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from 'cn';
 import { SECTION_HELP, type SectionHelpId } from '@/lib/sectionHelp';
 import { AssumptionsHelp } from './AssumptionsHelp';
 
@@ -19,25 +21,27 @@ export function SectionHelp({ id, label = 'About this panel', triggerClass }: {
       </DialogTrigger>
       <DialogPortal>
         <DialogBackdrop />
-        <DialogPopup className="max-w-md">
+        <DialogPopup className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogTitle>{s.title}</DialogTitle>
-          <dl className="mt-4 space-y-3 text-sm">
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Interpretation</dt>
-              <dd className="mt-1 leading-relaxed">{s.interpret}</dd>
-            </div>
-            <div>
-              <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Actions</dt>
-              <dd className="mt-1 leading-relaxed">{s.act}</dd>
-            </div>
-          </dl>
+          <section className="mt-8 pt-6 border-t border-border">
+            <h3 className="text-xl font-bold mb-2">What this means</h3>
+            <p className="text-lg text-muted-foreground leading-relaxed">{s.interpret}</p>
+          </section>
+          <section className="mt-8 pt-6 border-t border-border">
+            <h3 className="text-xl font-bold mb-2">What you can do</h3>
+            <p className="text-lg text-muted-foreground leading-relaxed">{s.act}</p>
+          </section>
           {s.topic && (
-            <p className="mt-4">
-              <AssumptionsHelp topic={s.topic} label="Research sources" />
+            <p className="mt-6">
+              <AssumptionsHelp
+                topic={s.topic}
+                label="Research sources"
+                triggerClass="text-lg text-brand underline-offset-4 hover:underline"
+              />
             </p>
           )}
-          <div className="flex justify-end mt-5">
-            <DialogClose className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-sm">
+          <div className="flex justify-end mt-8">
+            <DialogClose className={cn(buttonVariants({ size: 'lg' }), 'text-lg px-8')}>
               Close
             </DialogClose>
           </div>

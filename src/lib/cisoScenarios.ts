@@ -2,12 +2,21 @@ import { DEFENSES, STAFF_CAPACITY_PER_LEVEL } from './data';
 import { GameEngine } from './game';
 import { DEFAULT_SIM_KNOBS, type SimKnobs } from './simKnobs';
 
-export type StrategyId = 'blind' | 'spray' | 'controlsOnly' | 'aligned' | 'maxed';
+export type StrategyId =
+  | 'blind' | 'spray' | 'controlsOnly' | 'aligned' | 'maxed'
+  | 'alignedLate' | 'alignedTooLate';
+
+// Quarter the assessment + requirements program starts, for the timing scenarios.
+export const PROGRAM_START: Partial<Record<StrategyId, number>> = {
+  aligned: 1,
+  alignedLate: 4,
+  alignedTooLate: 7,
+};
 
 export const HABIT_COPY: Record<StrategyId, { label: string; hint: string }> = {
   blind: {
     label: 'Spend nothing',
-    hint: 'No program: no threat modeling, no requirements, no controls.',
+    hint: 'No threat modeling, no security requirements, no controls.',
   },
   spray: {
     label: 'A little of everything',
@@ -18,8 +27,16 @@ export const HABIT_COPY: Record<StrategyId, { label: string; hint: string }> = {
     hint: 'Buy a tool stack with no risk assessment. Controls apply generically. Residual risk stays at industry rates.',
   },
   aligned: {
-    label: 'Assessment + guide + tools',
-    hint: 'Risk assessment, guidance, and the matching tools. The team knows where and how to use them.',
+    label: 'Threat modeling + requirements, day one',
+    hint: 'Threat modeling + security requirements + matching tools from quarter 1. The team knows where and how to use them.',
+  },
+  alignedLate: {
+    label: 'Threat modeling + requirements after 3 quarters',
+    hint: 'Same controls, but threat modeling + security requirements only start in quarter 4 — after the estate has been exposed for a while.',
+  },
+  alignedTooLate: {
+    label: 'Threat modeling + requirements after 6 quarters',
+    hint: 'The right approach, started in quarter 7. Breaches and lost reputation have already piled up and do not come back.',
   },
   maxed: {
     label: 'Max every tool',
@@ -104,8 +121,11 @@ function applyStrategy(game: GameEngine, strategy: StrategyId): void {
   }
 
   const program = game.getProgramTarget();
-  buyTo(game, 'threatModel', program);
-  buyTo(game, 'reqMgmt', program);
+  const startQuarter = PROGRAM_START[strategy] ?? 1;
+  if (game.turn >= startQuarter) {
+    buyTo(game, 'threatModel', program);
+    buyTo(game, 'reqMgmt', program);
+  }
   if (game.threatModelLevel > 0) {
     const targets = game.getTargetLevels();
     for (const [key, t] of Object.entries(targets)) {

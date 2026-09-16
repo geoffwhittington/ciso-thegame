@@ -67,8 +67,8 @@ export const DEFENSES: Record<string, Defense> = {
   aiSecurity:  { name: 'AI/ML Security',         icon: '🤖', type: 'capability', setupCost: 55,  maintainCost: 16, alertLoad: 0, desc: 'Guardrails, model monitoring, red team',            helps: ['PROMPT', 'AGENCY', 'POISON', 'LEAK', 'THEFT'] },
   secAgents:   { name: 'Security Automation',    icon: '⚡', type: 'capability', setupCost: 40,  maintainCost: 10, alertLoad: 0, desc: 'Each agent closes 1 extra risk per quarter. Staff must stay one level higher so people stay in charge.', helps: [] },
   // ── Anticipate & execute ──
-  threatModel: { name: 'Anticipate risks', icon: '🔍', type: 'tool', setupCost: 25,  maintainCost: 8, alertLoad: 0, desc: 'Predict how each system gets attacked so you fund the right controls. Includes the people who do the analysis.', helps: [] },
-  reqMgmt:     { name: 'Execute controls', icon: '📝', type: 'tool', setupCost: 30,  maintainCost: 10, alertLoad: 0, desc: 'Requirements so investments actually stop those attacks — not just sit on a slide.', helps: [] },
+  threatModel: { name: 'Threat modeling', icon: '🔍', type: 'tool', setupCost: 25,  maintainCost: 8, alertLoad: 0, desc: 'Assess the risk of the systems so you fund the right controls. Includes the people who do the analysis.', helps: [] },
+  reqMgmt:     { name: 'Security requirements', icon: '📝', type: 'tool', setupCost: 30,  maintainCost: 10, alertLoad: 0, desc: 'Write how the team must use those controls so they actually stop the attacks — not just sit on a slide.', helps: [] },
 };
 
 export const MAX_DEFENSE_LEVEL = 5;

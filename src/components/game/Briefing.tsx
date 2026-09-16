@@ -13,19 +13,19 @@ export function Briefing({ onBegin }: { onBegin: () => void }) {
   const inPerQ = `$${(game.revenue / 1000).toFixed(0)} million`;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-8">
-      <div className="w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-xl border border-border bg-card p-6 sm:p-10 shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-xl border border-border bg-card p-5 sm:p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Your first day</h1>
-            <p className="text-lg text-muted-foreground mt-2">NovaMind · you are the head of security</p>
+            <h1 className="text-2xl font-bold tracking-tight">Your first day</h1>
+            <p className="text-sm text-muted-foreground mt-1">NovaMind · you are the head of security</p>
           </div>
-          <button type="button" className="text-lg text-muted-foreground hover:text-foreground shrink-0" onClick={startOver}>
+          <button type="button" className="text-sm text-muted-foreground hover:text-foreground shrink-0" onClick={startOver}>
             Return to start
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
           <ReviewStat k="Company worth" v={`$${(game.companyValue / 1000).toFixed(0)}M`} />
           <ReviewStat k="Money in / quarter" v={`$${(game.revenue / 1000).toFixed(0)}M`} />
           <ReviewStat k="Board trust" v={`${game.reputation}/100`} />
@@ -33,13 +33,13 @@ export function Briefing({ onBegin }: { onBegin: () => void }) {
         </div>
 
         <ReviewBlock title="The company">
-          <p className="text-lg text-muted-foreground">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             NovaMind sells AI software to other businesses. The company is worth {worth} and brings in about {inPerQ} each quarter.
           </p>
         </ReviewBlock>
 
         <ReviewBlock title="Your money">
-          <p className="text-lg text-muted-foreground">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             The board gave you ${game.quarterlyBudget}K this quarter to spend on security
             {game.treasury > 0 ? ` (plus $${game.treasury}K already in the drawer)` : ''}.
             That is about {pct}% of what the company takes in.
@@ -50,27 +50,27 @@ export function Briefing({ onBegin }: { onBegin: () => void }) {
         </ReviewBlock>
 
         <ReviewBlock title="Portfolio">
-          <ul className="space-y-3">
+          <ul className="space-y-2">
             {live.map(p => (
               <ReportRow key={p.id} mark={p.icon} title={p.name}>
                 Live. {p.desc}
               </ReportRow>
             ))}
           </ul>
-          <p className="text-lg text-muted-foreground mt-3">
+          <p className="text-sm text-muted-foreground mt-2">
             More products will show up later. Hackers can only hit what is live, not what is still being built.
           </p>
         </ReviewBlock>
 
         <ReviewBlock title="Your job">
-          <p className="text-lg text-muted-foreground">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             You have {game.maxTurns} quarters ({game.getCalendarQuarter(1)} to {game.getCalendarQuarter(game.maxTurns)}).
             Keep board trust above 0. If it hits 0, you are out.
           </p>
         </ReviewBlock>
 
-        <div className="flex justify-end mt-8">
-          <Button size="lg" className="text-lg px-8" onClick={onBegin}>
+        <div className="flex justify-end mt-5">
+          <Button onClick={onBegin}>
             Start the job
           </Button>
         </div>

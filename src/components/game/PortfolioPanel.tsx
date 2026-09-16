@@ -18,12 +18,17 @@ export function PortfolioPanel() {
 
   return (
     <GameSection title="Portfolio" help="systems">
-      {tmr.level === 'none' ? (
+      {game.reqMgmtLevel === 0 && (
         <p className="text-sm text-muted-foreground">
-          {all.length === 1
-            ? 'You have not assessed whether this system is vulnerable, or how likely an attack is.'
-            : `You have not assessed which of these ${all.length} systems are vulnerable, or how likely attacks are.`}
+          Security requirements not in scope. Controls are ad hoc — unknown risks, or implemented incorrectly.
         </p>
+      )}
+      {tmr.level === 'none' ? (
+        game.reqMgmtLevel > 0 && (
+          <p className="text-sm text-muted-foreground">
+            Threat-model these systems to assess which are at risk.
+          </p>
+        )
       ) : (
         <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
           <span>{tmr.totalRisks - tmr.hiddenRisks}/{tmr.totalRisks} found</span>
@@ -35,7 +40,7 @@ export function PortfolioPanel() {
       <ThreatStrip />
 
       {upcoming.length > 0 && (
-        <div className="text-sm text-yellow-200 bg-yellow-500/5 border border-yellow-500/20 rounded px-3 py-1.5">
+        <div className="text-xs text-muted-foreground">
           Coming: {upcoming.map(p => <span key={p.id}><strong>{p.icon} {p.name}</strong> ({game.getCalendarQuarter(p.arrivesTurn)}) </span>)}
         </div>
       )}
@@ -80,11 +85,11 @@ function ThreatStrip() {
         }[status];
         const statusWord = { unknown: 'Unassessed', defended: 'Defended', partial: 'Partial', exposed: 'Exposed' }[status];
         return (
-          <div key={attack.name} className="flex items-center gap-2 py-0.5 text-sm">
-            <span className={`w-2 h-2 rounded-full shrink-0 ${dotColor}`} aria-hidden />
-            <span className="font-medium flex-1 truncate">{attack.name}</span>
-            <span className="text-muted-foreground shrink-0 text-sm">{statusWord}</span>
-            <span className="text-muted-foreground shrink-0 text-sm">{attack.annualRate}</span>
+          <div key={attack.name} className="flex items-center gap-2 py-0.5 text-xs text-muted-foreground">
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} aria-hidden />
+            <span className="font-medium text-foreground/80 flex-1 truncate">{attack.name}</span>
+            <span className="shrink-0">{statusWord}</span>
+            <span className="shrink-0">{attack.annualRate}</span>
             <CiteLink href={urlForCitation(attack.citation, attack.source)}>{attack.source}</CiteLink>
           </div>
         );
@@ -218,7 +223,7 @@ function WeaknessRow({ product, wk }: { product: Product; wk: string }) {
       )}
 
       {game.reqMgmtLevel === 0 && !bestPath?.met && (
-        <div className="text-sm text-muted-foreground pl-5 mt-1">No execution plan yet — buy Execute controls so staff can close this.</div>
+        <div className="text-sm text-muted-foreground pl-5 mt-1">No requirements yet — buy security requirements so staff can close this.</div>
       )}
     </div>
   );

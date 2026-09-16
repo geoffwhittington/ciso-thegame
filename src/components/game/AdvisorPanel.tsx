@@ -19,10 +19,10 @@ export function AdvisorPanel() {
   if (recs.length === 0) return null;
 
   return (
-    <GameSection title="Suggested spend" help="advisor" hint={label}>
+    <GameSection title="Suggested spend" help="advisor" hint={label} quiet dashed>
       <p className="text-sm text-muted-foreground mb-2">
         {level === 'blind'
-          ? 'Until you assess this system, these extras follow industry frequency.'
+          ? 'Until you threat-model the systems, these extras follow industry frequency.'
           : 'Live systems first. Pipeline only if production is covered.'}
       </p>
       <div className="space-y-2">

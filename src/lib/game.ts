@@ -542,6 +542,14 @@ export class GameEngine {
     return this.maxTurns >= 20 ? 'IPO' : 'Series B';
   }
 
+  getHeadline(): string {
+    if (this.reputation <= 0) return 'You didn’t make the cut.';
+    const g = this.getGrade();
+    if (g === 'F' || g === 'D') return 'You didn’t make the cut.';
+    if (g === 'C') return 'You lasted.';
+    return 'You made the cut.';
+  }
+
   getDebrief(): string {
     const tm = this.threatModelLevel;
     const rm = this.reqMgmtLevel;
@@ -873,10 +881,12 @@ export class GameEngine {
     if (this.threatModelLevel < program && !alreadyQueued.has('threatModel')) {
       recs.push({
         icon: '🔍',
-        title: this.products.active.length === 1 ? 'Assess this system' : 'Assess these systems',
+        title: this.products.active.length === 1 ? 'Threat model this system' : 'Threat model these systems',
         detail: this.threatModelLevel === 0
-          ? 'Find which systems are vulnerable and how likely attacks are.'
-          : 'New products arrived. Widen the assessment so they are in scope.',
+          ? (this.products.active.length === 1
+            ? 'Assess the risk of this system — whether it is vulnerable, and how likely an attack is.'
+            : 'Assess the risk of the systems — which are vulnerable, and how likely an attack is.')
+          : 'New products arrived. Widen the threat model so they are in scope.',
         actionType: 'upgrade', actionKey: 'threatModel', cost: DEFENSES.threatModel.setupCost,
       });
     }
@@ -1079,8 +1089,12 @@ export class GameEngine {
   getScore(): number { return this.getScoreBreakdown().total; }
 
   getGrade(): string {
-    const s = this.getScore();
-    return s >= 4000 ? 'A+' : s >= 3200 ? 'A' : s >= 2400 ? 'B' : s >= 1800 ? 'C' : s >= 1200 ? 'D' : 'F';
+    // Reputation zero is always a fail, regardless of accrued score.
+    if (this.reputation <= 0) return 'F';
+    // Grade on score-per-quarter so the 3Q interim, 8Q Series B, and 20Q IPO
+    // are all winnable. A clean early threat-model + requirements run tops the curve.
+    const perQ = this.getScore() / Math.max(1, this.turn);
+    return perQ >= 640 ? 'A+' : perQ >= 500 ? 'A' : perQ >= 400 ? 'B' : perQ >= 330 ? 'C' : perQ >= 180 ? 'D' : 'F';
   }
 
   getBlindSpotSummary() {

@@ -25,7 +25,7 @@ export function ReportInternal({
   events: { data: { name: string; outcome?: string; effect?: string } }[];
 }) {
   return (
-    <ul className="space-y-3">
+    <ul className="space-y-2">
       {trust.map((e, i) => (
         <ReportRow key={`t${i}`} mark="✅" title="Quiet quarter">
           {e.data.text.replace(/^Quiet quarter\.\s*/, '')}

@@ -39,7 +39,7 @@ export function Hud() {
           Return to start
         </button>
       </div>
-      <GameSection title="Board status" help="status">
+      <GameSection title="Board status" help="status" quiet>
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-card border border-border rounded-lg px-3 py-2.5">
           <div className="text-sm text-muted-foreground">Quarter</div>
@@ -53,7 +53,7 @@ export function Hud() {
         </div>
         <div className="bg-card border border-border rounded-lg px-3 py-2.5">
           <div className="text-sm text-muted-foreground">Grade</div>
-          <div className="text-2xl sm:text-3xl font-black text-brand leading-tight">{grade}</div>
+          <div className="text-xl sm:text-2xl font-black text-muted-foreground leading-tight">{grade}</div>
           <div className="text-sm text-muted-foreground mt-1">Score {game.getScore().toLocaleString()}</div>
           {game.quietStreak > 0 && <div className="text-sm text-emerald-300">{game.quietStreak} quiet quarter{game.quietStreak === 1 ? '' : 's'}</div>}
         </div>

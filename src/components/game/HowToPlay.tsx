@@ -46,7 +46,7 @@ export function HowToPlay() {
       row: {
         mark: '👥',
         title: 'See the risks. Use the tools. Hire people.',
-        body: 'Anticipate risks shows how live products get attacked. Execute controls tells the team how to use the tools. Each hire can close one listed gap when the quarter ends. Too many alerts and those tools work worse.',
+        body: 'Threat modeling shows how live products get attacked. Security requirements tell the team how to use the tools. Each hire can close one listed gap when the quarter ends. Too many alerts and those tools work worse.',
       },
     },
     {
@@ -69,50 +69,48 @@ export function HowToPlay() {
   const s = steps[step];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-8">
-      <div className="w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-xl border border-border bg-card p-6 sm:p-10 shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-xl border border-border bg-card p-5 sm:p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">How this works</h1>
-            <p className="text-lg text-muted-foreground mt-2">
+            <h1 className="text-2xl font-bold tracking-tight">How this works</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               Step {step + 1} of 3 · {s.title}
             </p>
           </div>
-          <button type="button" className="text-lg text-muted-foreground hover:text-foreground shrink-0" onClick={startOver}>
+          <button type="button" className="text-sm text-muted-foreground hover:text-foreground shrink-0" onClick={startOver}>
             Return to start
           </button>
         </div>
 
-        <div className="flex gap-2 mt-6" aria-hidden>
+        <div className="flex gap-2 mt-4" aria-hidden>
           {steps.map((_, i) => (
             <span key={i} className={`h-1.5 flex-1 rounded-full ${i === step ? 'bg-brand' : i < step ? 'bg-brand/50' : 'bg-muted'}`} />
           ))}
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
           {s.stats.map(st => (
             <ReviewStat key={st.k} k={st.k} v={st.v} />
           ))}
         </div>
 
         <ReviewBlock title={s.title}>
-          <ul className="space-y-3">
+          <ul className="space-y-2">
             <ReportRow mark={s.row.mark} title={s.row.title}>
               {s.row.body}
             </ReportRow>
           </ul>
         </ReviewBlock>
 
-        <div className="flex items-center justify-between gap-4 mt-8">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="lg" className="text-lg px-8" disabled={step === 0} onClick={() => setStep(step - 1)}>
+        <div className="flex items-center justify-between gap-3 mt-5">
+          <div className="flex items-center gap-3">
+            <Button variant="outline" disabled={step === 0} onClick={() => setStep(step - 1)}>
               Back
             </Button>
-            <AssumptionsHelp topic={s.topic} label="Research sources" triggerClass="text-lg text-brand underline-offset-4 hover:underline" />
+            <AssumptionsHelp topic={s.topic} label="Research sources" triggerClass="text-sm text-brand underline-offset-4 hover:underline" />
           </div>
           <Button
-            size="lg"
-            className="text-lg px-8"
             onClick={() => {
               if (!last) { setStep(step + 1); return; }
               game.phase = 'budget';

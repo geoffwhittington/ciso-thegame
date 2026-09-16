@@ -17,7 +17,7 @@ export function LabTakeaway({ data }: { data: LabRows }) {
     cells.push({
       name: row.label,
       kept: pct(row.ipoRate),
-      loss: `$${((row.attackCost / 1000) / t).toFixed(1)}M / q`,
+      loss: `$${((row.attackCost / 1000) / t).toFixed(1)}M / q`, // breach losses, not attempts
     });
   }
   if (cells.length === 0) return null;
@@ -30,7 +30,7 @@ export function LabTakeaway({ data }: { data: LabRows }) {
           <div key={c.name} className="rounded-md bg-muted/40 px-3 py-2">
             <div className="font-medium">{c.name}</div>
             <div className="text-muted-foreground">Kept job {c.kept}</div>
-            <div className="text-muted-foreground">Attack $ {c.loss}</div>
+            <div className="text-muted-foreground">Breach loss {c.loss}</div>
           </div>
         ))}
       </div>

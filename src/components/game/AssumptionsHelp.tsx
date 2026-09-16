@@ -1,6 +1,8 @@
 import {
   Dialog, DialogTrigger, DialogPortal, DialogBackdrop, DialogPopup, DialogTitle, DialogClose,
 } from '@/components/ui/dialog';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from 'cn';
 import { ASSUMPTIONS, type AssumptionId } from '@/lib/assumptions';
 import { AssumptionCard } from './AssumptionCard';
 
@@ -10,6 +12,7 @@ export function AssumptionsHelp({ topic, label = 'Research assumptions', trigger
   triggerClass?: string;
 }) {
   const rows = topic ? ASSUMPTIONS.filter(a => a.id === topic) : ASSUMPTIONS;
+  const single = !!topic && rows.length === 1;
 
   return (
     <Dialog>
@@ -18,13 +21,15 @@ export function AssumptionsHelp({ topic, label = 'Research assumptions', trigger
       </DialogTrigger>
       <DialogPortal>
         <DialogBackdrop />
-        <DialogPopup className="max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogTitle>{topic ? rows[0]?.title ?? 'Sources' : 'Simulation assumptions'}</DialogTitle>
-          <div className="mt-4 space-y-3">
-            {rows.map(a => <AssumptionCard key={a.id} id={a.id} />)}
+        <DialogPopup className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogTitle>{single ? rows[0].title : 'Simulation assumptions'}</DialogTitle>
+          <div className={single ? 'mt-6' : 'mt-6 space-y-10'}>
+            {rows.map(a => (
+              <AssumptionCard key={a.id} id={a.id} hideTitle={single} />
+            ))}
           </div>
-          <div className="flex justify-end mt-5">
-            <DialogClose className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-sm">
+          <div className="flex justify-end mt-8">
+            <DialogClose className={cn(buttonVariants({ size: 'lg' }), 'text-lg px-8')}>
               Close
             </DialogClose>
           </div>

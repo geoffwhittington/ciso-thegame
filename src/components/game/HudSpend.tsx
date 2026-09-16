@@ -78,7 +78,7 @@ export function HudSpend() {
         <span>{champs} champion{champs !== 1 ? 's' : ''}{agents > 0 ? ` · ${agents} agent${agents !== 1 ? 's' : ''}` : ''}</span>
         <span>
           {game.reqMgmtLevel === 0 && !game.pendingUpgrades.reqMgmt
-            ? 'Buy Execute controls so staff can close risks'
+            ? 'Buy security requirements so staff can close risks'
             : `Staff will close ${fixes} of ${cap} risk slot${cap !== 1 ? 's' : ''} this quarter`}
           {' '}<AssumptionsHelp topic="staff" label="Why" />
         </span>

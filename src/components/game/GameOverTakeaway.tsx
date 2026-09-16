@@ -36,16 +36,16 @@ export function GameOverTakeaway() {
           </p>
         )}
         <div className="pt-2 border-t border-border space-y-1 text-muted-foreground">
-          <div className="font-semibold text-foreground">When the program stood up</div>
+          <div className="font-semibold text-foreground">When threat modeling & security requirements stood up</div>
           <div>
             {tm
-              ? `Risk assessment started ${game.getCalendarQuarter(tm)}`
-              : 'Risk assessment never stood up'}
+              ? `Threat modeling started ${game.getCalendarQuarter(tm)}`
+              : 'Threat modeling never stood up'}
           </div>
           <div>
             {rm
-              ? `Guidance for the team started ${game.getCalendarQuarter(rm)}`
-              : 'Guidance never stood up'}
+              ? `Security requirements started ${game.getCalendarQuarter(rm)}`
+              : 'Security requirements never stood up'}
           </div>
         </div>
       </div>
