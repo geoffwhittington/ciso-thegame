@@ -5,15 +5,15 @@ export function GameOverScore() {
   const { game } = useGame();
   const b = game.getScoreBreakdown();
   const rows = [
-    { label: 'Survived', value: `+${b.survivalPts}`, hint: `${game.turn}q` },
-    { label: 'Company value', value: `+${b.valuationPts}` },
-    { label: 'Trust', value: `+${b.reputationPts}` },
-    { label: 'Posture', value: `+${b.posturePts}` },
-    { label: 'Attacks stopped', value: `+${b.blockedPts}`, tone: 'text-emerald-600' },
-    { label: 'Controls', value: `+${b.defensePts}` },
-    { label: 'TM + requirements', value: `+${b.toolPts}`, tone: 'text-brand' },
-    { label: 'Quiet quarters', value: `+${b.quietPts}`, tone: 'text-emerald-600' },
-    { label: 'Breaches', value: `-${b.breachPenalty}`, tone: 'text-red-600' },
+    { label: 'Kept your badge', value: `+${b.survivalPts}`, hint: `${game.turn} quarters` },
+    { label: 'Made Marcus richer', value: `+${b.valuationPts}`, hint: 'Company value' },
+    { label: 'Avoided board execution', value: `+${b.reputationPts}`, hint: 'Trust' },
+    { label: 'Bought useful things', value: `+${b.posturePts}`, hint: 'Posture' },
+    { label: "Ruined attackers' day", value: `+${b.blockedPts}`, hint: 'Blocked', tone: 'text-emerald-600' },
+    { label: 'Filled vendor quotas', value: `+${b.defensePts}`, hint: 'Controls' },
+    { label: 'Actually read the risk register', value: `+${b.toolPts}`, hint: 'TM + requirements', tone: 'text-brand' },
+    { label: 'Slept occasionally', value: `+${b.quietPts}`, hint: 'Quiet quarters', tone: 'text-emerald-600' },
+    { label: 'Incident-response cardio', value: `-${b.breachPenalty}`, hint: 'Breaches', tone: 'text-red-600' },
   ];
 
   return (

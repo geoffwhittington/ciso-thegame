@@ -605,9 +605,9 @@ export class GameEngine {
   }
 
   getHeadline(): string {
-    if (this.reputation <= 0) return 'You didn’t make the cut.';
+    if (this.reputation <= 0) return 'Your badge has been deactivated.';
     const g = this.getGrade();
-    if (g === 'F' || g === 'D') return 'You didn’t make the cut.';
+    if (g === 'F' || g === 'D') return 'Your badge has been deactivated.';
     if (g === 'C') return 'You lasted.';
     return 'You made the cut.';
   }

@@ -51,7 +51,9 @@ export function GameOverHero() {
 
         <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs">
           <span className="comic-badge comic-badge-green">🛡️ {game.totalBlocked} stopped</span>
-          <span className="comic-badge comic-badge-red">🚨 {game.totalBreaches} breaches</span>
+          <span className={`comic-badge ${game.totalBreaches === 0 ? 'comic-badge-green' : 'comic-badge-red'}`}>
+            🚨 {game.totalBreaches} breaches
+          </span>
           <span className="comic-badge comic-badge-blue">💰 ${(game.companyValue / 1000).toFixed(0)}M value</span>
           {game.totalGuidanceSavings !== 0 && (
             <span className={`comic-badge ${game.totalGuidanceSavings > 0 ? 'comic-badge-green' : 'comic-badge-yellow'}`}>
