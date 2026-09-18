@@ -22,7 +22,7 @@ export function EndQuarterConfirm() {
         <DialogPopup className="max-w-md comic-card-flat p-4 sm:p-5">
           <DialogTitle className="comic-heading text-xl text-brand">End {game.getCalendarQuarter()}?</DialogTitle>
 
-          <PersonaMessage id="board" line={getLine('board', 'end_quarter', game.turn)} compact />
+          <PersonaMessage id="board" line={getLine('board', 'end_quarter', game.getDialogueSeed())} compact />
 
           <div className="mt-3 space-y-2 text-sm">
             {hasAnything ? (

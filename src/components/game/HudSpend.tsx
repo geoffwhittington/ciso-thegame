@@ -69,7 +69,7 @@ export function HudSpend() {
           Buy requirements so staff can close risks
         </div>
       )}
-      <PersonaMessageInline id="ceo" line={getLine('ceo', budgetSituation, game.turn)} />
+      <PersonaMessageInline id="ceo" line={getLine('ceo', budgetSituation, game.getDialogueSeed())} />
     </GameSection>
   );
 }

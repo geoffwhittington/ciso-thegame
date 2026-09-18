@@ -18,7 +18,7 @@ export function Briefing({ onBegin }: { onBegin: () => void }) {
           <button type="button" className="text-sm font-bold text-muted-foreground hover:text-foreground shrink-0" onClick={startOver}>← Back</button>
         </div>
 
-        <PersonaMessage id="ceo" line={getLine('ceo', 'greeting', game.turn)} />
+        <PersonaMessage id="ceo" line={getLine('ceo', 'greeting', game.getDialogueSeed())} />
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
           <ReviewStat k="Company" v={`$${(game.companyValue / 1000).toFixed(0)}M`} />
@@ -49,7 +49,7 @@ export function Briefing({ onBegin }: { onBegin: () => void }) {
           </p>
         </ReviewBlock>
 
-        <PersonaMessage id="ciso" line={getLine('ciso', 'greeting', game.turn)} compact />
+        <PersonaMessage id="ciso" line={getLine('ciso', 'greeting', game.getDialogueSeed())} compact />
 
         <div className="flex justify-end mt-4">
           <button onClick={onBegin} className="comic-btn comic-btn-primary text-lg">Start the job →</button>

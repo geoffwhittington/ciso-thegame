@@ -30,12 +30,12 @@ export function Report() {
   const situation = fired ? 'gameover_lose' : breached.length > 0 ? 'quarter_breach' : contained.length > 0 ? 'quarter_contained' : 'quarter_calm';
 
   return (
-    <div className="h-screen flex items-center justify-center p-3 sm:p-4">
-      <div className="w-full max-w-3xl max-h-[90vh] flex flex-col comic-card overflow-hidden">
+    <div className="h-[100dvh] flex items-stretch sm:items-center justify-center p-2 sm:p-4">
+      <div className="w-full max-w-3xl h-full sm:h-auto max-h-full sm:max-h-[90vh] flex flex-col comic-card overflow-hidden">
         <div className="shrink-0 px-4 pt-3 sm:px-5 sm:pt-4 paper-texture">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h1 className={`text-xl sm:text-2xl font-black comic-heading ${fired ? 'text-red-600' : 'text-brand'}`}>
+              <h1 className={`text-2xl sm:text-4xl font-black comic-heading ${fired ? 'text-red-600' : 'text-brand'}`}>
                 {fired ? "You're Fired" : done ? 'Assignment Complete' : 'Quarter Review'}
               </h1>
               <p className="text-xs font-bold text-muted-foreground">{game.getCalendarQuarter()} · Q{game.turn}/{game.maxTurns}</p>
@@ -44,9 +44,9 @@ export function Report() {
           </div>
 
           {/* Persona reactions instead of raw stat grid */}
-          <PersonaMessage id="board" line={getLine('board', situation, game.turn)} compact />
-          {breached.length > 0 && <PersonaMessage id="analyst" line={getLine('analyst', 'quarter_breach', game.turn)} compact />}
-          {breached.length === 0 && blocked.length > 0 && <PersonaMessage id="analyst" line={getLine('analyst', situation, game.turn)} compact />}
+          <PersonaMessage id="board" line={getLine('board', situation, game.getDialogueSeed())} compact />
+          {breached.length > 0 && <PersonaMessage id="analyst" line={getLine('analyst', 'quarter_breach', game.getDialogueSeed())} compact />}
+          {breached.length === 0 && blocked.length > 0 && <PersonaMessage id="analyst" line={getLine('analyst', situation, game.getDialogueSeed())} compact />}
 
           <div className="flex flex-wrap gap-2 mt-2 mb-1">
             {blocked.length > 0 && <span className="comic-badge comic-badge-green text-[9px]">🛡️ {blocked.length} stopped</span>}
@@ -58,19 +58,19 @@ export function Report() {
 
         <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-5 pb-3 paper-texture">
           {attacks.length > 0 && (
-            <ReviewBlock title="Incidents">
+            <ReviewBlock title="Incidents" prominent>
               <ReportIncidents attacks={attacks} />
             </ReviewBlock>
           )}
 
           {internal > 0 && (
-            <ReviewBlock title="Internal">
+            <ReviewBlock title="Internal" prominent>
               <ReportInternal trust={trust} fixes={fixes} milestones={milestones} products={products} degradations={degradations} events={events} />
             </ReviewBlock>
           )}
 
           {news.length > 0 && (
-            <ReviewBlock title="Industry">
+            <ReviewBlock title="Industry" prominent>
               <ul className="space-y-2">
                 {news.map((e, i) => (
                   <ReportRow key={`n${i}`} mark="📰" title={`${e.data.category}: ${e.data.headline}`}>
@@ -83,7 +83,7 @@ export function Report() {
           )}
         </div>
 
-        <div className="shrink-0 flex items-center justify-between gap-3 border-t-2 border-foreground/20 px-4 py-2.5 sm:px-5 bg-card">
+        <div className="shrink-0 flex items-center justify-between gap-3 border-t-2 border-foreground/20 px-4 py-2.5 sm:px-5 bg-card pb-[max(0.625rem,env(safe-area-inset-bottom))]">
           <AssumptionsHelp label="Sources" triggerClass="text-sm text-brand font-bold underline-offset-4 hover:underline" />
           <button className="comic-btn comic-btn-primary" onClick={() => { game.nextTurn(); update(); }}>
             {fired ? 'Clear your desk →' : done ? 'Results →' : 'Continue →'}

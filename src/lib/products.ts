@@ -43,11 +43,12 @@ export class ProductPipeline {
   tick(turn: number) {
     const events: { type: string; product: Product }[] = [];
     for (const tpl of PRODUCT_SCHEDULE) {
-      if (tpl.arrivesTurn === turn && !this.active.find(p => p.id === tpl.id)) {
-        const liveNow = tpl.arrivesTurn === 1 || (this.quickLive && tpl.id === 'aifeature');
+      const quickPreview = this.quickLive && tpl.id === 'aifeature' && turn === 1;
+      if ((tpl.arrivesTurn === turn || quickPreview) && !this.active.find(p => p.id === tpl.id)) {
+        const liveNow = tpl.arrivesTurn === 1;
         const product: Product = {
           ...tpl,
-          phase: liveNow ? 4 : 0,
+          phase: quickPreview ? 3 : liveNow ? 4 : 0,
           launched: liveNow,
           mitigated: new Set(),
           securityAllowanceK: productSecurityAllowance(tpl),
@@ -58,6 +59,9 @@ export class ProductPipeline {
     }
     for (const p of this.active) {
       if (!p.launched) {
+        // Quick play previews the AI Assistant in Rollout for the full first
+        // planning quarter, then launches it after that quarter's attack roll.
+        if (this.quickLive && p.id === 'aifeature' && turn === 1) continue;
         p.phase++;
         if (p.phase >= 4) { p.phase = 4; p.launched = true; events.push({ type: 'product_launched', product: p }); }
       }
@@ -68,7 +72,13 @@ export class ProductPipeline {
   getLiveProducts() { return this.active.filter(p => p.launched); }
   getInPipeline() { return this.active.filter(p => !p.launched); }
   getTotalRevenue() { return this.getLiveProducts().reduce((s, p) => s + p.revenue, 0); }
-  getUpcoming(turn: number) { return PRODUCT_SCHEDULE.filter(p => p.arrivesTurn > turn && p.arrivesTurn <= turn + 3); }
+  getUpcoming(turn: number) {
+    return PRODUCT_SCHEDULE.filter(
+      product => product.arrivesTurn > turn
+        && product.arrivesTurn <= turn + 3
+        && !this.active.some(active => active.id === product.id),
+    );
+  }
 
   toJSON() {
     return this.active.map(p => ({

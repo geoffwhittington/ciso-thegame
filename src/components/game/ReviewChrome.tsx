@@ -18,10 +18,16 @@ export function ReviewStat({ k, v, tone }: { k: string; v: string; tone?: 'breac
   );
 }
 
-export function ReviewBlock({ title, children }: { title: string; children: ReactNode }) {
+export function ReviewBlock({ title, children, prominent = false }: {
+  title: string;
+  children: ReactNode;
+  prominent?: boolean;
+}) {
   return (
     <section className="mt-3 pt-3 border-t-2 border-dashed border-border/30">
-      <h2 className="text-sm font-black mb-1.5 comic-heading uppercase tracking-wide">{title}</h2>
+      <h2 className={`${prominent ? 'text-lg sm:text-xl' : 'text-sm'} font-black mb-1.5 comic-heading uppercase tracking-wide`}>
+        {title}
+      </h2>
       {children}
     </section>
   );

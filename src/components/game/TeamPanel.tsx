@@ -23,7 +23,7 @@ export function TeamPanel() {
 
   return (
     <GameSection title="👥 Team">
-      <PersonaMessageInline id="compliance" line={getLine('compliance', situation, game.turn)} />
+      <PersonaMessageInline id="compliance" line={getLine('compliance', situation, game.getDialogueSeed())} />
 
       <div className="grid grid-cols-3 gap-2 mt-2">
         <div className="stat-card stat-card-blue text-center">

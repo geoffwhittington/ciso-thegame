@@ -43,10 +43,10 @@ export function GameOverHero() {
         </h1>
 
         <div className="mt-4 space-y-1 text-left max-w-md mx-auto">
-          <PersonaMessage id="board" line={getLine('board', situation, game.turn)} compact />
-          <PersonaMessage id="ceo" line={getLine('ceo', situation, game.turn)} compact />
-          <PersonaMessage id="analyst" line={getLine('analyst', situation, game.turn)} compact />
-          <PersonaMessage id="ciso" line={getLine('ciso', situation, game.turn)} compact />
+          <PersonaMessage id="board" line={getLine('board', situation, game.getDialogueSeed())} compact />
+          <PersonaMessage id="ceo" line={getLine('ceo', situation, game.getDialogueSeed())} compact />
+          <PersonaMessage id="analyst" line={getLine('analyst', situation, game.getDialogueSeed())} compact />
+          <PersonaMessage id="ciso" line={getLine('ciso', situation, game.getDialogueSeed())} compact />
         </div>
 
         <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs">

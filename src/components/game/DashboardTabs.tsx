@@ -32,8 +32,8 @@ export function DashboardTabs({ active, onChange, counts }: {
               }
             `}
           >
-            <span>{tab.icon}</span>
-            <span className="comic-heading tracking-wide hidden sm:inline">{tab.label}</span>
+            <span className="text-xl leading-none" aria-hidden>{tab.icon}</span>
+            <span className="comic-heading tracking-wide">{tab.label}</span>
             {count != null && count > 0 && (
               <span className="comic-badge comic-badge-red text-[9px] ml-0.5">{count > 9 ? '9+' : count}</span>
             )}

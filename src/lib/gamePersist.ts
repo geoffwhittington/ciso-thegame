@@ -14,6 +14,7 @@ export function snapshotGame(game: GameEngine) {
     treasury: game.treasury,
     reputation: game.reputation,
     securityPosture: game.securityPosture,
+    narrativeSeed: game.narrativeSeed,
     knobs: game.knobs,
     defenses: game.defenses,
     pendingUpgrades: game.pendingUpgrades,
@@ -52,6 +53,7 @@ export function applySnapshot(game: GameEngine, snap: ReturnType<typeof snapshot
   game.treasury = snap.treasury ?? 0;
   game.reputation = snap.reputation ?? game.reputation;
   game.securityPosture = snap.securityPosture ?? 0;
+  game.narrativeSeed = snap.narrativeSeed ?? game.narrativeSeed;
   game.knobs = { ...game.knobs, ...(snap.knobs || {}) };
   game.defenses = { ...game.defenses, ...(snap.defenses || {}) };
   game.pendingUpgrades = snap.pendingUpgrades ?? {};

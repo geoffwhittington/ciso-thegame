@@ -234,6 +234,30 @@ describe('CISO engine invariants', () => {
       .flatMap(e => (e.data.vulnProducts || []).map((v: { id: string }) => v.id));
     expect(hit).not.toContain('aifeature');
   });
+
+  it('shows the quick-play AI product before it launches', () => {
+    const g = new GameEngine();
+    g.reset(3);
+    const ai = g.products.active.find(p => p.id === 'aifeature');
+    expect(ai?.launched).toBe(false);
+    expect(ai?.phase).toBe(3);
+    expect(g.totalProductSecurityFunding).toBe(ai?.securityAllowanceK);
+    expect(g.products.getUpcoming(1).some(p => p.id === 'aifeature')).toBe(false);
+
+    g.phase = 'budget';
+    const orig = Math.random;
+    Math.random = () => 0;
+    try {
+      g.endQuarter();
+    } finally {
+      Math.random = orig;
+    }
+    expect(ai?.launched).toBe(true);
+    const hit = g.turnLog
+      .filter(e => e.type === 'attack')
+      .flatMap(e => (e.data.vulnProducts || []).map((v: { id: string }) => v.id));
+    expect(hit).not.toContain('aifeature');
+  });
 });
 
 describe('CISO scenario suite (seeded)', () => {

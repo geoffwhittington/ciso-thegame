@@ -47,6 +47,8 @@ export interface ActiveDegradation {
 
 // ─── ENGINE ──────────────────────────────────────────────
 export class GameEngine {
+  private static narrativeSequence = 0;
+
   products = new ProductPipeline();
   news = new NewsFeed();
 
@@ -60,6 +62,7 @@ export class GameEngine {
   treasury = 0;
   reputation = 75;
   securityPosture = 0;
+  narrativeSeed = 0;
   knobs: SimKnobs = { ...DEFAULT_SIM_KNOBS };
 
   defenses: Record<string, number> = {};
@@ -101,8 +104,13 @@ export class GameEngine {
     return `${year} Q${q}`;
   }
 
+  getDialogueSeed(offset = 0): number {
+    return this.narrativeSeed + this.turn * 101 + offset;
+  }
+
   reset(maxTurns?: number) {
     this.turn = 1; this.maxTurns = maxTurns ?? this.maxTurns ?? 8; this.phase = 'briefing';
+    this.narrativeSeed = (Date.now() + ++GameEngine.narrativeSequence * 7919) % 2147483647;
     this.revenue = 5000; this.companyValue = 250000;
     this.quarterlyBudget = 0;
     this.treasury = this.knobs.startTreasury + (this.maxTurns <= 3 ? 30 : 0);
@@ -120,7 +128,11 @@ export class GameEngine {
     this.started = false;
     this.products.reset(); this.news.reset();
     this.products.quickLive = this.maxTurns <= 3;
-    this.products.tick(1);
+    for (const event of this.products.tick(1)) {
+      if (event.type !== 'product_arrived') continue;
+      this.treasury += event.product.securityAllowanceK;
+      this.totalProductSecurityFunding += event.product.securityAllowanceK;
+    }
     this._calcBudget();
   }
 

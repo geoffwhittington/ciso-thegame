@@ -10,7 +10,7 @@ export function AdvisorPanel() {
   if (recs.length === 0) return null;
 
   const situation = game.threatModelLevel === 0 ? 'no_threat_model' : game.getAvailableBudget() < 100 ? 'budget_tight' : 'quarter_calm';
-  const quip = getLine('analyst', situation, game.turn);
+  const quip = getLine('analyst', situation, game.getDialogueSeed());
 
   return (
     <GameSection title="🧠 Advice" quiet>
