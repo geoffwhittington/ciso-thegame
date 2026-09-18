@@ -25,7 +25,7 @@ export function InvestmentsPanel() {
         <AssumptionsHelp topic="guided" label="Why" />
       </div>
       <div className="flex flex-wrap gap-2 text-sm mb-2">
-        <span className="comic-badge comic-badge-red">● Bought</span>
+        <span className="comic-badge comic-badge-owned">● Bought</span>
         <span className="comic-badge comic-badge-yellow">● This quarter</span>
         <span className="comic-badge comic-badge-blue">● Targeted</span>
       </div>

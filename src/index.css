@@ -191,7 +191,8 @@
 
 .handwritten {
   font-family: 'Caveat', cursive;
-  font-size: 1.15em;
+  font-size: 1.35em;
+  line-height: 1.2;
 }
 
 /* Comic button */
@@ -244,6 +245,8 @@
 .comic-badge-yellow { background: #ffd60a; color: #1a1a2e; }
 .comic-badge-green { background: #57cc99; color: #1a1a2e; }
 .comic-badge-blue { background: #90e0ef; color: #1a1a2e; }
+.comic-badge-owned { background: #457b9d; color: #ffffff; }
+.comic-badge-neutral { background: #e5e7eb; color: #374151; }
 
 /* Comic meter bar */
 .comic-meter {

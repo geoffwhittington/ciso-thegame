@@ -68,7 +68,7 @@ export function InvestmentCard({ category, game, update, relevant }: {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-black comic-heading text-sm">{category.title}</span>
-            <span className={`comic-badge text-[9px] ${status.deployed === 0 ? 'comic-badge-red' : status.deployed < status.total ? 'comic-badge-yellow' : 'comic-badge-green'}`}>
+            <span className={`comic-badge text-[9px] ${status.deployed === 0 ? 'comic-badge-neutral' : status.deployed < status.total ? 'comic-badge-yellow' : 'comic-badge-green'}`}>
               {status.label}
             </span>
           </div>

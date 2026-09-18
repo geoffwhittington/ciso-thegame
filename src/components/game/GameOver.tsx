@@ -29,8 +29,8 @@ export function GameOver() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-3xl max-h-[94vh] overflow-y-auto space-y-3 animate-in fade-in duration-500">
+    <div className="min-h-screen flex items-start justify-center p-4 sm:py-6">
+      <div className="w-full max-w-3xl space-y-3 animate-in fade-in duration-500">
       <GameOverHero />
 
       <button className="comic-btn comic-btn-primary w-full text-lg" onClick={startOver}>
