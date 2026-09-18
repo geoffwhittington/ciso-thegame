@@ -58,6 +58,9 @@ export function DefenseRow({ defKey, def, game, update, relevant, compact = fals
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
               <span className="font-bold text-sm truncate">{def.name}</span>
+              {defKey === 'reqMgmt' && game.threatModelLevel > 0 && eff === 0 && (
+                <span className="comic-badge comic-badge-yellow shrink-0">Next step</span>
+              )}
               {eff > 0 && (
                 <span className="comic-badge comic-badge-owned text-[10px] shrink-0">Lv{eff}</span>
               )}

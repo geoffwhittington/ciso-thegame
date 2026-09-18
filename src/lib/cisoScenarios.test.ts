@@ -391,4 +391,12 @@ describe('guidance leverage', () => {
     g.cancelUpgrade('threatModel');
     expect(g.getThreatModelReport().level).toBe('none');
   });
+
+  it('recommends security requirements immediately after threat modeling', () => {
+    const g = new GameEngine();
+    expect(g.queueUpgrade('threatModel')).toBe(true);
+    const recommendations = g.getRecommendations();
+    expect(recommendations[0]?.actionKey).toBe('reqMgmt');
+    expect(recommendations[0]?.detail).toContain('configure and use controls');
+  });
 });

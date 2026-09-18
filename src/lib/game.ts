@@ -965,6 +965,22 @@ export class GameEngine {
       });
     }
 
+    if (
+      this.threatModelLevel > 0
+      && this.reqMgmtLevel < this.threatModelLevel
+      && !alreadyQueued.has('reqMgmt')
+      && recs.length < 3
+    ) {
+      recs.push({
+        icon: '📝',
+        title: 'Buy Security Requirements — make the tools work here',
+        detail: 'Turn each threat-model finding into instructions for how teams configure and use controls. Without requirements, controls stay generic and staff cannot close listed gaps.',
+        actionType: 'upgrade',
+        actionKey: 'reqMgmt',
+        cost: DEFENSES.reqMgmt.setupCost,
+      });
+    }
+
     const overflow = this.getAlertOverflow();
     if (overflow > 0 && recs.length < 3 && !alreadyQueued.has('secTeam')) {
       recs.push({
@@ -998,14 +1014,6 @@ export class GameEngine {
         if (alreadyQueued.has(item.actionKey!)) continue;
         recs.push(item);
       }
-    }
-
-    if (recs.length < 3 && this.threatModelLevel > 0 && this.reqMgmtLevel < this.threatModelLevel && !alreadyQueued.has('reqMgmt')) {
-      recs.push({
-        icon: '📝', title: 'Write how the team should use the tools',
-        detail: 'Tell the team where and how to apply each tool.',
-        actionType: 'upgrade', actionKey: 'reqMgmt', cost: DEFENSES.reqMgmt.setupCost,
-      });
     }
 
     return recs.slice(0, 3);

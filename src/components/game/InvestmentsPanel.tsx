@@ -4,11 +4,16 @@ import { DefenseRow } from './DefenseRow';
 import { GameSection } from './GameSection';
 import { AssumptionsHelp } from './AssumptionsHelp';
 import { InvestmentCard, INVESTMENT_CATEGORIES } from './InvestmentCard';
+import { SecurityProgramSteps } from './SecurityProgramSteps';
 
 export function InvestmentsPanel() {
   const { game, update } = useGame();
   const tools = Object.entries(DEFENSES).filter(([, d]) => d.type === 'tool');
   const relevant = game.getRelevantDefenses();
+  const hasControls = Object.entries(DEFENSES).some(
+    ([key, defense]) => defense.type === 'capability'
+      && ((game.defenses[key] || 0) + (game.pendingUpgrades[key] || 0) > 0),
+  );
 
   return (
     <GameSection title="🔧 Security Investments" help="investments">
@@ -16,6 +21,11 @@ export function InvestmentsPanel() {
         Threat Modeling & Requirements
         <AssumptionsHelp topic="anticipate" label="Why" />
       </div>
+      <SecurityProgramSteps
+        threatModel={game.threatModelLevel > 0}
+        requirements={game.reqMgmtLevel > 0}
+        controls={hasControls}
+      />
       <div className="space-y-0.5">
         {tools.map(e => <DefenseRow key={e[0]} defKey={e[0]} def={e[1]} game={game} update={update} relevant={true} compact />)}
       </div>
