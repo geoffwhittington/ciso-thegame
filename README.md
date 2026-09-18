@@ -1,51 +1,66 @@
 # CISO — Survive the Board. Outsmart the Breach.
 
-**CISO** is a browser game that puts you in the security chief's seat at a fast‑growing AI company. Every quarter the board hands you a budget. You decide where it goes — threat modeling, security requirements, and the controls that stop real attacks — while the product ships, the estate grows, and attackers keep knocking.
+**CISO** is a story-driven browser game about running security at a fast-growing AI company. Products ship, inherited risk arrives, the board changes its mind, and every person in the room wants something different from you.
 
-Make the calls a real CISO makes. Keep your reputation above zero. Get the company to the finish line.
+Spend carefully, keep the board's trust, and survive long enough to reach the IPO.
 
-> A teaching game by **Acme Security Company**, grounded in published security research — not vibes.
+> A teaching game by **Acme Security Company**, grounded in published security research and familiar cybersecurity chaos.
 
-## Why play
+## What's new
 
-- **It's the real job, compressed.** Fixed budget, growing attack surface, competing priorities, and a board that only remembers the last breach.
-- **Every number is sourced.** Attack frequencies and breach costs come from Verizon DBIR, OWASP Top 10, OWASP LLM Top 10, IBM Cost of a Data Breach, and the Microsoft SDL research — cited right in the UI.
-- **It proves the thesis.** Threat modeling **plus** security requirements makes you safer *and* cheaper. The game's engine is calibrated to the evidence, and the built‑in Simulation Lab lets you prove it for yourself.
+- **Persona-driven story.** Marcus the cost-cutting CEO, Victoria the ruthless board chair, Dev the exhausted security lead, and Amara the compliance evangelist react to your decisions—and blame each other when things go wrong.
+- **Less spreadsheet, more cause and effect.** The main interface uses plain-language status such as “paper-thin” and “the board is watching.” Hard numbers remain where decisions need them: budget, costs, capacity, and detailed tabs.
+- **Comic management-game interface.** Colorful cards, character portraits, horizontal navigation, and touch-friendly mobile layouts.
+- **Focused investment decisions.** Controls are grouped into People, Identity, Perimeter, App Security, Detection, and AI Security cards instead of one giant list.
+- **Immediate planning feedback.** Queued Threat Modeling and Security Requirements reveal findings immediately, while permanent deployment and costs settle at quarter close.
+- **Product-aware funding.** Every active product adds risk-based security funding. Pipeline products receive launch-readiness money, and acquisitions receive additional integration funding.
+- **Visible value.** The money panel compares the cost of Threat Modeling + Requirements with the savings they create across the rest of the control portfolio.
 
-## Pick your tour
+## The cast
 
-| Assignment | Length | The challenge |
-| --- | --- | --- |
-| **Interim CISO** | 3 quarters | A short tour. Learn the ropes fast. |
-| **Series B CISO** | 8 quarters | Scale threat modeling and security requirements as the company grows. |
-| **IPO‑path CISO** | 20 quarters | The long game. Survive to the public markets. |
+- **Marcus Cole, CEO:** Wants enterprise security at free-tier pricing.
+- **Victoria Chen, Board Chair:** Wants results, one slide, and someone to blame.
+- **Dev Patel, Security Lead:** Already documented this risk. Page two. Highlighted.
+- **Amara Osei, GRC Manager:** Has a policy for the policy-review policy.
+- **You, CISO:** Caught between all four with a budget and a rapidly shrinking sleep schedule.
+
+## Ways to play
+
+- **Interim CISO — 3 quarters:** Learn the core loop quickly.
+- **Series B CISO — 8 quarters:** Scale the program as products arrive.
+- **IPO-path CISO — 20 quarters:** Start the program early or watch accumulated risk end your tenure.
 
 ## How a quarter works
 
-1. **Read the board.** Reputation, reserves, and this quarter's outcome.
-2. **Assess the estate.** Threat‑model your live systems to see which are actually exposed — before you spend.
-3. **Invest.** Buy threat modeling, security requirements, and the controls that match your real risks. Threat modeling finds the gaps; requirements make sure the tools are actually used to close them.
-4. **Close the quarter.** Attacks roll in. Strong, aligned programs stop most of them; unlisted gaps and neglected controls get breached.
-5. **Review and adjust.** See what happened, what it cost, and what to do next.
+1. **Read the room.** Board confidence, defensive posture, incidents, and available money are summarized in plain language.
+2. **Assess the portfolio.** Threat Modeling reveals product-specific gaps and the cited incident rate beside each gap.
+3. **Plan the response.** Security Requirements turn findings into work; matching controls and staff address the risks.
+4. **Close the quarter.** Purchases deploy, staff address what they can, and attacks test production systems.
+5. **Face the consequences.** The characters react, the board adjusts funding, new products arrive, and the next quarter begins.
 
-## The lesson, in one screen
+The tabs keep deeper information available without crowding the main decision:
 
-The Simulation Lab replays the job hundreds of times and averages the results, so you can compare:
+- **Investments:** Categorized controls and planning capabilities.
+- **Portfolio:** Products, gaps, recommended controls, and compact research citations.
+- **Team:** Staffing, automation, workload, and alert pressure.
+- **Infrastructure:** Detailed control levels and operational health.
+- **Log:** Incident history and losses.
 
-- **Spending habits** — do nothing, spray a little everywhere, buy tools with no plan, run the full program, or max every tool.
-- **Timing** — start threat modeling + security requirements on day one, or wait a few quarters and watch the cost pile up.
+## Research and simulation
 
-The takeaway is consistent and evidence‑backed: **a modest, early investment in threat modeling and security requirements cuts total cost (spend + breach losses) many times over — and it has to happen early, because lost reputation doesn't come back.**
+Attack frequencies and breach costs reference Verizon DBIR, OWASP Top 10, OWASP LLM Top 10, IBM Cost of a Data Breach, MITRE ATLAS, and software-security research. Citations remain available directly from the relevant gap or report.
 
-## Run it locally
+The Simulation Lab compares spending and timing strategies across repeatable runs. Early alignment between Threat Modeling, Security Requirements, staffing, and matching controls remains the strongest path through the longer game.
+
+## Run locally
 
 ```bash
 npm install
-npm run dev      # play at the local dev URL
-npm run build    # production build
-npm test         # simulation + engine tests
+npm run dev
+npm run build
+npm test
 ```
 
 ## Tech
 
-Vite · React · TypeScript · Tailwind. All game logic lives in `src/lib` (the engine, the sourced data catalog, and the scenario simulator); the UI lives in `src/components`.
+Vite, React, TypeScript, Tailwind, and Vitest. Game logic, research data, persistence, and simulations live in `src/lib`; the componentized interface lives in `src/components`.
