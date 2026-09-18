@@ -49,18 +49,6 @@ function categoryStatus(keys: string[], game: GameEngine): {
   return { deployed, total, spend, hasPending, label };
 }
 
-function categorySummary(keys: string[], game: GameEngine): string {
-  const parts: string[] = [];
-  for (const k of keys) {
-    const def = DEFENSES[k];
-    if (!def) continue;
-    const lvl = (game.defenses[k] || 0) + (game.pendingUpgrades[k] || 0);
-    if (lvl > 0) parts.push(`${def.name} Lv${lvl}`);
-    else parts.push(`No ${def.name.toLowerCase()}`);
-  }
-  return parts.join(' · ');
-}
-
 export function InvestmentCard({ category, game, update, relevant }: {
   category: InvestmentCategory;
   game: GameEngine;
@@ -69,7 +57,6 @@ export function InvestmentCard({ category, game, update, relevant }: {
 }) {
   const [open, setOpen] = useState(false);
   const status = categoryStatus(category.keys, game);
-  const summary = categorySummary(category.keys, game);
 
   return (
     <div className={`comic-card-flat overflow-hidden ${open ? '' : 'cursor-pointer'}`}>
@@ -94,7 +81,7 @@ export function InvestmentCard({ category, game, update, relevant }: {
               {status.label}
             </span>
           </div>
-          <div className="text-xs text-muted-foreground truncate mt-0.5">{summary}</div>
+          <div className="text-xs text-muted-foreground mt-0.5">{category.question}</div>
         </div>
         {status.spend > 0 && (
           <span className="text-xs font-bold tabular-nums text-muted-foreground shrink-0">${status.spend}K/q</span>
@@ -105,7 +92,7 @@ export function InvestmentCard({ category, game, update, relevant }: {
       {open && (
         <div className="border-t-2 border-foreground/10 px-3 sm:px-4 py-2 space-y-0.5 paper-texture">
           <div className="text-sm text-muted-foreground handwritten mb-1">
-            {category.question} {category.quip}
+            {category.quip}
           </div>
           {category.keys.map(k => {
             const def = DEFENSES[k];

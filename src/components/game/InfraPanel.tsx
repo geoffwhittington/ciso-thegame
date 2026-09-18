@@ -42,7 +42,7 @@ export function InfraPanel() {
           <div className="flex flex-wrap gap-2">
             {pending.map(([k, n]) => (
               <span key={k} className="comic-badge comic-badge-yellow">
-                {DEFENSES[k].icon} {DEFENSES[k].name} +{n}
+                {DEFENSES[k].name} +{n}
               </span>
             ))}
           </div>
@@ -60,7 +60,6 @@ export function InfraPanel() {
             const fill = degraded ? 'bg-yellow-500' : 'bg-emerald-500';
             return (
               <div key={k} className={`flex items-center gap-3 py-1.5 border-b-2 border-dashed border-foreground/10 ${degraded ? 'opacity-80' : ''}`}>
-                <span className="text-lg w-7 text-center">{def.icon}</span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold truncate">{def.name}</span>

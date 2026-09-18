@@ -17,17 +17,12 @@ export function InvestmentsPanel() {
         <AssumptionsHelp topic="anticipate" label="Why" />
       </div>
       <div className="space-y-0.5">
-        {tools.map(e => <DefenseRow key={e[0]} defKey={e[0]} def={e[1]} game={game} update={update} relevant={true} />)}
+        {tools.map(e => <DefenseRow key={e[0]} defKey={e[0]} def={e[1]} game={game} update={update} relevant={true} compact />)}
       </div>
 
-      <div className="text-sm font-black comic-heading pt-2 flex items-center gap-2">
+      <div className="text-sm font-black comic-heading pt-2 flex items-center gap-2 border-t-2 border-foreground/10">
         Defenses
         <AssumptionsHelp topic="guided" label="Why" />
-      </div>
-      <div className="flex flex-wrap gap-2 text-sm mb-2">
-        <span className="comic-badge comic-badge-owned">● Bought</span>
-        <span className="comic-badge comic-badge-yellow">● This quarter</span>
-        <span className="comic-badge comic-badge-blue">● Targeted</span>
       </div>
       <div className="space-y-2">
         {INVESTMENT_CATEGORIES.map(cat => (

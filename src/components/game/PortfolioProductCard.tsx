@@ -170,7 +170,7 @@ function WeaknessRow({ product, wk }: { product: Product; wk: string }) {
                 disabled={game.getUpgradeCost(key) === null || (game.getUpgradeCost(key) || 0) > game.getAvailableBudget()}
                 onClick={() => { game.queueUpgrade(key); update(); }}
               >
-                {defense.icon} {defense.name} Lv{current}→{minLevel} · ${game.getUpgradeCost(key)}K
+                {defense.name} Lv{current}→{minLevel} · ${game.getUpgradeCost(key)}K
               </button>
             );
           })}

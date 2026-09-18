@@ -22,7 +22,6 @@ export function AdvisorPanel() {
           return (
             <div key={i} className="py-2 border-b border-dashed border-foreground/10 last:border-0">
               <div className="flex items-center gap-2">
-                <span className="text-lg shrink-0">{rec.icon}</span>
                 <div className="text-sm font-bold leading-tight flex-1 min-w-0">{rec.title}</div>
                 {!isInfo && rec.actionKey && (
                   <button

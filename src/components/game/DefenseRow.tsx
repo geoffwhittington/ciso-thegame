@@ -18,8 +18,13 @@ type GameLike = {
   queueUpgrade: (key: string) => void;
 };
 
-export function DefenseRow({ defKey, def, game, update, relevant }: {
-  defKey: string; def: typeof DEFENSES[string]; game: GameLike; update: () => void; relevant: boolean;
+export function DefenseRow({ defKey, def, game, update, relevant, compact = false }: {
+  defKey: string;
+  def: typeof DEFENSES[string];
+  game: GameLike;
+  update: () => void;
+  relevant: boolean;
+  compact?: boolean;
 }) {
   const [showHelp, setShowHelp] = useState(false);
   const level = game.defenses[defKey] || 0;
@@ -43,44 +48,48 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
 
   return (
     <div className={`${!relevant ? 'opacity-25' : ''}`}>
-      <div className={`flex items-center gap-2 py-2.5 border-b-2 border-dashed border-border/20 ${pending ? 'bg-yellow-50/60' : ''}`}>
-        <button className="text-muted-foreground hover:text-foreground text-base shrink-0 font-bold" onClick={() => setShowHelp(!showHelp)} aria-label="What is this">
-          {showHelp ? '✕' : 'ⓘ'}
-        </button>
-        <span className="text-lg shrink-0 w-7 text-center">{def.icon}</span>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-            <span className="font-bold text-sm truncate">{def.name}</span>
-            {eff > 0 && (
-              <span className="comic-badge comic-badge-owned text-[10px] shrink-0">Lv{eff}</span>
+      <div className={`flex items-center gap-2 ${compact ? 'py-2' : 'py-2.5'} border-b-2 border-dashed border-border/20 ${pending ? 'bg-yellow-50/60' : ''}`}>
+        <button
+          type="button"
+          className="min-w-0 flex-1 flex items-center gap-2 text-left"
+          onClick={() => setShowHelp(!showHelp)}
+          aria-expanded={showHelp}
+        >
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+              <span className="font-bold text-sm truncate">{def.name}</span>
+              {eff > 0 && (
+                <span className="comic-badge comic-badge-owned text-[10px] shrink-0">Lv{eff}</span>
+              )}
+              {isTool && pending > 0 && (
+                <span className="comic-badge comic-badge-green text-[10px] shrink-0">
+                  Findings live
+                </span>
+              )}
+              {recommended && (
+                <span className="comic-badge comic-badge-yellow text-[10px] shrink-0">
+                  Aim Lv{need}
+                </span>
+              )}
+            </div>
+            {!compact && <div className="text-xs text-muted-foreground leading-snug">{defenseCovers(defKey)}</div>}
+            {(opsHit || (level > 0 && effLevel < level)) && (
+              <div className="text-xs text-yellow-600 font-bold">
+                {workingLine({
+                  setbackText: setback?.text,
+                  alertOverload,
+                  owned: level,
+                  working: effLevel,
+                  missing: missingReqNames(defKey, game, level),
+                })}
+              </div>
             )}
-            {isTool && pending > 0 && (
-              <span className="comic-badge comic-badge-green text-[10px] shrink-0">
-                Findings live
-              </span>
-            )}
-            {recommended && (
-              <span className="comic-badge comic-badge-yellow text-[10px] shrink-0">
-                Aim Lv{need}
-              </span>
+            {!isTool && level > 0 && !opsHit && game.getGuidanceLevel() <= 0 && (
+              <div className="text-xs text-muted-foreground">Generic coverage</div>
             )}
           </div>
-          <div className="text-xs text-muted-foreground leading-snug">{defenseCovers(defKey)}</div>
-          {(opsHit || (level > 0 && effLevel < level)) && (
-            <div className="text-xs text-yellow-600 font-bold">
-              {workingLine({
-                setbackText: setback?.text,
-                alertOverload,
-                owned: level,
-                working: effLevel,
-                missing: missingReqNames(defKey, game, level),
-              })}
-            </div>
-          )}
-          {!isTool && level > 0 && !opsHit && game.getGuidanceLevel() <= 0 && (
-            <div className="text-xs text-muted-foreground">Generic coverage</div>
-          )}
-        </div>
+          <span className={`text-xs text-muted-foreground shrink-0 transition-transform ${showHelp ? 'rotate-180' : ''}`}>▼</span>
+        </button>
         {!atCap || pending > 0 ? (
           <div className={`flex items-stretch border-3 border-foreground/20 rounded-lg overflow-hidden shrink-0 ${!canAfford && pending === 0 ? 'opacity-40' : ''}`}>
             {pending > 0 && (

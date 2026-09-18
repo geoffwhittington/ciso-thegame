@@ -29,7 +29,6 @@ export function EndQuarterConfirm() {
               <ul className="space-y-1.5">
                 {upgrades.map(([key, n]) => (
                   <li key={key} className="flex items-center gap-2 py-1.5 px-2 rounded-lg bg-muted/30">
-                    <span>{DEFENSES[key].icon}</span>
                     <span className="flex-1 font-bold">{n > 1 ? `${n}x ` : ''}{DEFENSES[key].name}</span>
                     <span className="font-black tabular-nums">${game.getPendingSetupCost(key)}K</span>
                   </li>
