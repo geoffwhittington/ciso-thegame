@@ -20,7 +20,7 @@ export function ReportInternal({
   trust: { data: { text: string } }[];
   fixes: { data: { count: number; items: string[] } }[];
   milestones: { data: { name: string; valuationBoost?: number } }[];
-  products: { type: string; data: { name: string } }[];
+  products: { type: string; data: { name: string; id?: string; securityAllowanceK?: number } }[];
   degradations: { data: { defense: string; text: string } }[];
   events: { data: { name: string; outcome?: string; effect?: string } }[];
 }) {
@@ -47,7 +47,15 @@ export function ReportInternal({
           mark="📦"
           title={e.data.name}
         >
-          {e.type === 'product_arrived' ? 'Entered the pipeline' : 'Entered production'}
+          {e.type === 'product_arrived'
+            ? `Entered the pipeline.${
+                e.data.securityAllowanceK != null
+                  ? ` Board added $${e.data.securityAllowanceK}K ${
+                      e.data.id === 'acq' ? 'acquisition integration' : 'launch readiness'
+                    } funding.`
+                  : ''
+              }`
+            : 'Entered production'}
         </ReportRow>
       ))}
       {degradations.map((e, i) => (

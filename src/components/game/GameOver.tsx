@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useGame } from './GameContext';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { GameOverHero } from './GameOverHero';
 import { GameOverScore } from './GameOverScore';
@@ -31,43 +30,43 @@ export function GameOver() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-xl max-h-[94vh] overflow-y-auto space-y-3 animate-in fade-in duration-500">
+        <div className="w-full max-w-3xl max-h-[94vh] overflow-y-auto space-y-3 animate-in fade-in duration-500">
       <GameOverHero />
 
-      <Button className="w-full h-12 text-base font-semibold" onClick={startOver}>
-        Play again
-      </Button>
+      <button className="comic-btn comic-btn-primary w-full text-lg" onClick={startOver}>
+        🔄 Play again
+      </button>
 
-      <div className="rounded-xl border border-border bg-card px-4 py-3 space-y-3">
+      <div className="comic-card p-4 space-y-3">
         {!saved ? (
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Add your name to save this run.</p>
+            <p className="text-sm font-bold text-muted-foreground">Add your name to save this run.</p>
             <div className="flex gap-2">
               <Input
-                className="flex-1 h-10"
+                className="flex-1 h-10 border-3 border-foreground/20 rounded-lg font-bold"
                 placeholder="Your name"
                 maxLength={20}
                 value={name}
                 onChange={e => setName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSave()}
               />
-              <Button variant="secondary" className="h-10" onClick={handleSave}>Save</Button>
+              <button className="comic-btn comic-btn-secondary h-10" onClick={handleSave}>Save</button>
             </div>
           </div>
         ) : (
-          <p className="text-emerald-300 font-semibold text-center text-sm">✓ Saved on this device</p>
+          <p className="text-emerald-600 font-black text-center text-sm comic-heading">✓ Saved on this device</p>
         )}
 
         {scores.length > 0 && (
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">Best on this device</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-1.5 comic-heading">🏆 Best on this device</h3>
             {scores.slice(0, 5).map((s, i) => (
-              <div key={s.id} className={`flex gap-2 py-1.5 border-b border-border last:border-0 text-sm min-w-0 ${i === 0 ? 'text-yellow-200 font-semibold' : ''}`}>
-                <span className="w-5 shrink-0 text-muted-foreground">{i + 1}</span>
-                <span className="flex-1 min-w-0 truncate">{s.name}</span>
-                <span className="font-bold tabular-nums shrink-0">{s.score.toLocaleString()}</span>
-                <span className="shrink-0 w-8 text-right">{s.grade}</span>
-                <span className="text-muted-foreground shrink-0 w-14 text-right">{s.valuation}</span>
+              <div key={s.id} className={`flex gap-2 py-1.5 border-b-2 border-dashed border-border/20 last:border-0 text-sm min-w-0 ${i === 0 ? 'text-brand font-black' : ''}`}>
+                <span className="w-5 shrink-0 text-muted-foreground font-black">{i + 1}</span>
+                <span className="flex-1 min-w-0 truncate font-semibold">{s.name}</span>
+                <span className="font-black tabular-nums shrink-0">{s.score.toLocaleString()}</span>
+                <span className="shrink-0 w-8 text-right font-black comic-heading">{s.grade}</span>
+                <span className="text-muted-foreground shrink-0 w-14 text-right font-bold">{s.valuation}</span>
               </div>
             ))}
           </div>
@@ -77,9 +76,9 @@ export function GameOver() {
       <button
         type="button"
         onClick={() => setShowDetails(v => !v)}
-        className="w-full text-sm font-medium text-muted-foreground hover:text-foreground py-1 transition-colors"
+        className="w-full comic-btn comic-btn-secondary text-sm"
       >
-        {showDetails ? 'Hide the details' : 'See what happened and how the grade was built'}
+        {showDetails ? 'Hide the details' : '📊 See what happened and how the grade was built'}
       </button>
 
       {showDetails && (

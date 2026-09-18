@@ -29,7 +29,7 @@ export const SECTION_HELP: Record<SectionHelpId, SectionHelpCopy> = {
   },
   budget: {
     title: 'Quarterly funding',
-    interpret: `The board allocates a security budget as a share of company revenue, plus a limited carry-forward of unused funds (at most ${Math.round(UNUSED_CARRY_PCT * 100)}% of that quarter's allocation). Operating cost of existing controls is deducted first. Allocation rises with revenue and reputation, and falls after incidents.`,
+    interpret: `The board funds security from company revenue and adds an allowance for every active product's risk, including pre-launch and internal products. New pipeline products receive one-time launch-readiness funding; acquisitions receive extra integration funding. Unused funds carry forward up to ${Math.round(UNUSED_CARRY_PCT * 100)}% of the quarterly allocation.`,
     act: 'Commit purchases under Security Investments. Increase Security Staff if alert volume exceeds capacity.',
     topic: 'staff',
   },
@@ -47,13 +47,13 @@ export const SECTION_HELP: Record<SectionHelpId, SectionHelpCopy> = {
   },
   investments: {
     title: 'Security investments',
-    interpret: 'Add commits a level at quarter close. Remove cancels the last commitment. Markers: owned, pending this quarter, aimed by threat modeling and requirements, or out of scope for current systems.',
-    act: 'Controls apply generically across products. Threat modeling shows gaps. Security requirements let staff close listed gaps. Setup is charged this quarter; operating cost continues while the level is held.',
+    interpret: 'Add queues a level; remove cancels it. Threat modeling and security requirements reveal planning information immediately, so you can use their findings before closing the quarter. Other controls become live at quarter close.',
+    act: 'Start with threat modeling to reveal gaps, then use security requirements and matching controls to act on them. Setup is charged this quarter; operating cost continues while the level is held.',
     topic: 'guided',
   },
   endQuarter: {
     title: 'Close the quarter',
-    interpret: 'Commitments become live, incidents are applied to production systems, and staff close listed gaps if security requirements and capacity exist.',
+    interpret: 'Queued controls become live, incidents are applied to production systems, and staff close listed gaps if security requirements and capacity exist. Planning findings were available while you built this queue.',
     act: 'Confirm to proceed, or return to revise the queue.',
     topic: 'attacks',
   },

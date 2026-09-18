@@ -3,36 +3,37 @@ import { DEFENSES } from '@/lib/data';
 import { DefenseRow } from './DefenseRow';
 import { GameSection } from './GameSection';
 import { AssumptionsHelp } from './AssumptionsHelp';
+import { InvestmentCard, INVESTMENT_CATEGORIES } from './InvestmentCard';
 
 export function InvestmentsPanel() {
   const { game, update } = useGame();
   const tools = Object.entries(DEFENSES).filter(([, d]) => d.type === 'tool');
-  const capabilities = Object.entries(DEFENSES).filter(([, d]) => d.type === 'capability');
   const relevant = game.getRelevantDefenses();
 
-  const sorted = [...capabilities].sort((a, b) => {
-    const aRel = relevant.has(a[0]) ? 0 : 1;
-    const bRel = relevant.has(b[0]) ? 0 : 1;
-    if (aRel !== bRel) return aRel - bRel;
-    return (game.defenses[b[0]] || 0) - (game.defenses[a[0]] || 0);
-  });
-
   return (
-    <GameSection title="Security Investments" help="investments">
-      <div className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-        Threat modeling &amp; requirements
+    <GameSection title="🔧 Security Investments" help="investments">
+      <div className="text-sm font-black comic-heading flex items-center gap-2">
+        Threat Modeling & Requirements
         <AssumptionsHelp topic="anticipate" label="Why" />
       </div>
-      <div className="space-y-0.5">{tools.map(e => <DefenseRow key={e[0]} defKey={e[0]} def={e[1]} game={game} update={update} relevant={true} />)}</div>
+      <div className="space-y-0.5">
+        {tools.map(e => <DefenseRow key={e[0]} defKey={e[0]} def={e[1]} game={game} update={update} relevant={true} />)}
+      </div>
 
-      <div className="text-sm font-semibold text-muted-foreground pt-1">Defenses</div>
-      <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-brand" /> Bought</span>
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-yellow-300" /> This quarter</span>
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-cyan-300" /> Targeted (threat modeling + requirements)</span>
+      <div className="text-sm font-black comic-heading pt-2 flex items-center gap-2">
+        Defenses
         <AssumptionsHelp topic="guided" label="Why" />
       </div>
-      <div className="space-y-0.5">{sorted.map(e => <DefenseRow key={e[0]} defKey={e[0]} def={e[1]} game={game} update={update} relevant={relevant.has(e[0])} />)}</div>
+      <div className="flex flex-wrap gap-2 text-sm mb-2">
+        <span className="comic-badge comic-badge-red">● Bought</span>
+        <span className="comic-badge comic-badge-yellow">● This quarter</span>
+        <span className="comic-badge comic-badge-blue">● Targeted</span>
+      </div>
+      <div className="space-y-2">
+        {INVESTMENT_CATEGORIES.map(cat => (
+          <InvestmentCard key={cat.id} category={cat} game={game} update={update} relevant={relevant} />
+        ))}
+      </div>
     </GameSection>
   );
 }

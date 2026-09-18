@@ -14,6 +14,7 @@ export interface Product {
   phase: number;
   launched: boolean;
   mitigated: Set<string>;
+  securityAllowanceK: number;
 }
 
 export const PRODUCT_SCHEDULE = [
@@ -27,6 +28,11 @@ export const PRODUCT_SCHEDULE = [
   { id: 'copilot',   name: 'Internal Dev Copilot',        icon: '✨', revenue: 0,    risk: 2, arrivesTurn: 8,  desc: 'AI coding assistant for internal engineers. Has access to source code repos, CI/CD pipelines, and internal documentation.', weaknesses: ['PROMPT', 'LEAK', 'VULN', 'SUPPLY'] },
 ];
 
+export function productSecurityAllowance(product: Pick<Product, 'id' | 'risk' | 'weaknesses'>): number {
+  const readiness = 20 + product.risk * 10 + Math.ceil(product.weaknesses.length / 2) * 5;
+  return readiness + (product.id === 'acq' ? 50 : 0);
+}
+
 export class ProductPipeline {
   active: Product[] = [];
   /** Quick play: AI assistant ships live in Q2 so a 3-turn run still shows the AI lesson. */
@@ -39,7 +45,13 @@ export class ProductPipeline {
     for (const tpl of PRODUCT_SCHEDULE) {
       if (tpl.arrivesTurn === turn && !this.active.find(p => p.id === tpl.id)) {
         const liveNow = tpl.arrivesTurn === 1 || (this.quickLive && tpl.id === 'aifeature');
-        const product: Product = { ...tpl, phase: liveNow ? 4 : 0, launched: liveNow, mitigated: new Set() };
+        const product: Product = {
+          ...tpl,
+          phase: liveNow ? 4 : 0,
+          launched: liveNow,
+          mitigated: new Set(),
+          securityAllowanceK: productSecurityAllowance(tpl),
+        };
         this.active.push(product);
         events.push({ type: liveNow ? 'product_launched' : 'product_arrived', product });
       }
@@ -71,6 +83,7 @@ export class ProductPipeline {
       phase: p.phase,
       launched: p.launched,
       mitigated: [...p.mitigated],
+      securityAllowanceK: p.securityAllowanceK,
     }));
   }
 
@@ -78,6 +91,7 @@ export class ProductPipeline {
     if (!Array.isArray(rows)) return;
     this.active = rows.map(p => ({
       ...p,
+      securityAllowanceK: p.securityAllowanceK ?? productSecurityAllowance(p),
       mitigated: new Set(Array.isArray(p.mitigated) ? p.mitigated : []),
     }));
   }

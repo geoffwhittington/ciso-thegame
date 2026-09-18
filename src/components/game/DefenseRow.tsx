@@ -44,27 +44,32 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
   const rmAligned = !isTool && alignedSoon > 0 && afterQuarter > 0 && alignedSoon >= afterQuarter;
   const need = !isTool ? game.getAnticipatedNeed(defKey) : 0;
   const recommended = relevant && game.threatModelLevel > 0 && need > eff;
-  const accent = pending ? 'border-l-2 border-l-brand pl-2 -ml-2' : recommended ? 'border-l-2 border-l-amber-400 pl-2 -ml-2' : '';
+  const accent = pending ? 'border-l-4 border-l-brand pl-2 -ml-2' : recommended ? 'border-l-4 border-l-amber-400 pl-2 -ml-2' : '';
 
   return (
     <div className={`${!relevant ? 'opacity-25' : ''} ${accent}`}>
-      <div className="flex items-center gap-2 py-2.5 border-b border-border/20">
-        <button className="text-muted-foreground hover:text-foreground text-base shrink-0" onClick={() => setShowHelp(!showHelp)} aria-label="What is this">
+      <div className="flex items-center gap-2 py-2.5 border-b-2 border-dashed border-border/20">
+        <button className="text-muted-foreground hover:text-foreground text-base shrink-0 font-bold" onClick={() => setShowHelp(!showHelp)} aria-label="What is this">
           {showHelp ? '✕' : 'ⓘ'}
         </button>
         <span className="text-lg shrink-0 w-7 text-center">{def.icon}</span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="font-semibold text-sm truncate">{def.name}</span>
+            <span className="font-bold text-sm truncate">{def.name}</span>
+            {isTool && pending > 0 && (
+              <span className="comic-badge comic-badge-green text-[10px] shrink-0">
+                Findings live
+              </span>
+            )}
             {recommended && (
-              <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-amber-300 bg-amber-400/10 border border-amber-400/30 rounded px-1.5 py-0.5">
-                Threat model · aim Lv{need}
+              <span className="comic-badge comic-badge-yellow text-[10px] shrink-0">
+                Aim Lv{need}
               </span>
             )}
           </div>
           <div className="text-xs text-muted-foreground leading-snug">{defenseCovers(defKey)}</div>
           {(opsHit || (level > 0 && effLevel < level)) && (
-            <div className="text-xs text-yellow-200">
+            <div className="text-xs text-yellow-600 font-bold">
               {workingLine({
                 setbackText: setback?.text,
                 alertOverload,
@@ -82,47 +87,47 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
           {Array.from({ length: cap }, (_, i) => (
             <div
               key={i}
-              className={`h-2.5 w-2.5 rounded-full ${dotShade(i, level, pending, cap, rmAligned)} ${recommended && i >= eff && i < need ? 'ring-1 ring-amber-400' : ''}`}
+              className={`h-3 w-3 rounded-full border-2 border-foreground/30 ${dotShade(i, level, pending, cap, rmAligned)} ${recommended && i >= eff && i < need ? 'ring-2 ring-amber-400' : ''}`}
             />
           ))}
         </div>
         {!atCap || pending > 0 ? (
-          <div className={`flex items-stretch border border-border/60 rounded-md overflow-hidden shrink-0 ${!canAfford && pending === 0 ? 'opacity-40' : ''}`}>
+          <div className={`flex items-stretch border-3 border-foreground/20 rounded-lg overflow-hidden shrink-0 ${!canAfford && pending === 0 ? 'opacity-40' : ''}`}>
             <button
-              className="w-10 text-lg text-red-300 hover:bg-red-500/10 disabled:opacity-20"
+              className="w-11 min-h-[44px] text-lg font-black text-red-500 hover:bg-red-100 disabled:opacity-20"
               disabled={pending <= 0}
               onClick={() => { game.cancelUpgrade(defKey); update(); }}
               aria-label="Undo last add"
             >−</button>
-            <div className="px-2.5 py-1.5 min-w-[8rem] text-center leading-tight">
+            <div className="px-2 sm:px-2.5 py-1.5 min-w-[6rem] sm:min-w-[8rem] text-center leading-tight bg-card">
               {pending > 0 ? (
                 <>
-                  <div className="text-sm font-semibold tabular-nums text-brand">${game.getPendingSetupCost(defKey)}K now</div>
-                  <div className="text-xs text-muted-foreground tabular-nums">${eff * def.maintainCost}K / quarter</div>
+                  <div className="text-sm font-black tabular-nums text-brand">${game.getPendingSetupCost(defKey)}K now</div>
+                  <div className="text-xs text-muted-foreground tabular-nums font-bold">${eff * def.maintainCost}K / quarter</div>
                 </>
               ) : (
                 <>
-                  <div className="text-sm font-semibold tabular-nums text-muted-foreground">${nextCost}K now</div>
+                  <div className="text-sm font-bold tabular-nums text-muted-foreground">${nextCost}K now</div>
                   <div className="text-xs text-muted-foreground tabular-nums">then ${def.maintainCost}K / q</div>
                 </>
               )}
             </div>
             <button
-              className="w-10 text-lg text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-20"
+              className="w-11 min-h-[44px] text-lg font-black text-emerald-500 hover:bg-emerald-100 disabled:opacity-20"
               disabled={!canAdd || !canAfford}
               onClick={() => { game.queueUpgrade(defKey); update(); }}
               aria-label={!canAfford ? 'Insufficient remaining budget' : `Add one level for $${nextCost} thousand`}
             >+</button>
           </div>
         ) : (
-          <div className="h-10 px-3 flex items-center text-sm text-emerald-300 font-semibold">MAX</div>
+          <div className="h-10 px-3 flex items-center comic-badge comic-badge-green font-black">MAX</div>
         )}
       </div>
 
       {showHelp && (
-        <div className="bg-muted/20 rounded px-3 py-2 text-sm text-muted-foreground space-y-1 mb-2">
-          <div>{def.desc}</div>
-          <div>
+        <div className="stat-card stat-card-blue text-sm space-y-1 mb-2 mt-1">
+          <div className="font-semibold">{def.desc}</div>
+          <div className="text-muted-foreground">
             Each + adds one level. Next: ${nextCost}K this quarter, then ${def.maintainCost}K every quarter.
             {isTool ? ` Level 1 stands up ${def.name.toLowerCase()}. Extra levels cover more of the estate.` : ' Each extra level costs the same as the first.'}
           </div>
@@ -131,29 +136,29 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
               const n = i + 1;
               const on = afterQuarter >= n;
               return (
-                <div key={n} className={on ? 'text-foreground' : ''}>
+                <div key={n} className={on ? 'font-bold' : 'text-muted-foreground'}>
                   {n}. {levelMeaning(defKey, n)}
                 </div>
               );
             })}
           </div>
           {!isTool && (
-            <div>Applies as a generic setup without threat modeling. Listed gaps need threat modeling plus security requirements.</div>
+            <div className="text-muted-foreground">Applies as a generic setup without threat modeling. Listed gaps need threat modeling plus security requirements.</div>
           )}
-          {def.helps.length > 0 && <div>Stops: <strong className="text-foreground">{countersPlain(def.helps)}</strong></div>}
+          {def.helps.length > 0 && <div>Stops: <strong>{countersPlain(def.helps)}</strong></div>}
           {def.alertLoad > 0 && <div>Generates <strong className="text-brand">{def.alertLoad} alerts/level</strong>. Needs Security Staff or those tools run one level weaker.</div>}
           {dep?.requires && Object.keys(dep.requires).length > 0 && (
             <div>Requires: {Object.entries(dep.requires).map(([k, v]) => {
               const reqDef = DEFENSES[k];
               const label = v === 'level' ? 'same level' : v === 'level+1' ? 'one level higher' : `level ${v}+`;
-              return <span key={k} className="text-foreground">{reqDef?.name} ({label}) </span>;
+              return <span key={k} className="font-bold">{reqDef?.name} ({label}) </span>;
             })}</div>
           )}
           {dep?.boosts && dep.boosts.length > 0 && (
             <div>Made more effective by: {dep.boosts.map(k => DEFENSES[k]?.name).filter(Boolean).join(', ')}</div>
           )}
-          {dep?.riskIf && <div className="text-red-300">Warning: {dep.riskIf.desc}</div>}
-          {defKey === 'secTeam' && <div>Takes effect <strong>immediately</strong> when hired</div>}
+          {dep?.riskIf && <div className="text-red-600 font-bold">⚠️ {dep.riskIf.desc}</div>}
+          {defKey === 'secTeam' && <div className="font-bold">Takes effect immediately when hired</div>}
         </div>
       )}
     </div>
@@ -201,8 +206,8 @@ function workingLine(opts: {
 
 function dotShade(i: number, owned: number, pending: number, cap: number, rmAligned: boolean): string {
   const stacked = owned + pending;
-  if (rmAligned && stacked >= cap && i === cap - 1) return 'bg-cyan-300';
+  if (rmAligned && stacked >= cap && i === cap - 1) return 'bg-cyan-400';
   if (i < owned) return 'bg-brand';
-  if (i < stacked) return 'bg-yellow-300';
+  if (i < stacked) return 'bg-yellow-400';
   return 'bg-muted/40';
 }

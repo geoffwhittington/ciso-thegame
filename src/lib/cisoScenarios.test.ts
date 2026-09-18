@@ -3,12 +3,44 @@ import { DEFENSES } from './data';
 import { GameEngine } from './game';
 import { average, play, runLab, runSuite, SCENARIO_SEEDS } from './cisoScenarios';
 import { loadWeaknessCatalog } from './cisoCatalog';
+import { PRODUCT_SCHEDULE, productSecurityAllowance } from './products';
+import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
+import { GameProvider } from '@/components/game/GameContext';
+import { GameShell } from '@/components/game/GameShell';
+import { snapshotGame } from './gamePersist';
 
 beforeAll(() => {
   loadWeaknessCatalog();
 });
 
 describe('CISO engine invariants', () => {
+  it('renders a restored budget-phase game', () => {
+    const game = new GameEngine();
+    game.started = true;
+    game.phase = 'budget';
+    const save = JSON.stringify(snapshotGame(game));
+    const previous = globalThis.localStorage;
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: () => save,
+        setItem: () => undefined,
+        removeItem: () => undefined,
+      },
+    });
+    try {
+      expect(() => renderToString(
+        createElement(GameProvider, null, createElement(GameShell)),
+      )).not.toThrow();
+    } finally {
+      Object.defineProperty(globalThis, 'localStorage', {
+        configurable: true,
+        value: previous,
+      });
+    }
+  });
+
   it('raises attack pressure with revenue', () => {
     const g = new GameEngine();
     const base = g.getAttackPressure();
@@ -23,6 +55,37 @@ describe('CISO engine invariants', () => {
     g.products.tick(5);
     g.products.tick(8);
     expect(g.getProgramTarget()).toBeGreaterThanOrEqual(2);
+  });
+
+  it('increases recurring funding when a zero-revenue product adds risk', () => {
+    const g = new GameEngine();
+    const beforeRiskFunding = g.getProductRiskBudget();
+    const beforeBudget = g.quarterlyBudget;
+    g.products.tick(3);
+    g._calcBudget();
+    expect(g.getProductRiskBudget()).toBeGreaterThan(beforeRiskFunding);
+    expect(g.quarterlyBudget).toBeGreaterThan(beforeBudget);
+  });
+
+  it('gives acquisitions extra integration funding', () => {
+    const acquisition = PRODUCT_SCHEDULE.find(p => p.id === 'acq')!;
+    const regular = PRODUCT_SCHEDULE.find(p => p.id === 'aifeature')!;
+    expect(productSecurityAllowance(acquisition)).toBeGreaterThan(productSecurityAllowance(regular));
+  });
+
+  it('adds launch-readiness funding when a product enters the pipeline', () => {
+    const g = new GameEngine();
+    g.phase = 'budget';
+    const orig = Math.random;
+    Math.random = () => 0.99;
+    try {
+      g.endQuarter();
+    } finally {
+      Math.random = orig;
+    }
+    const arrival = g.turnLog.find(e => e.type === 'product_arrived');
+    expect(arrival?.data.securityAllowanceK).toBeGreaterThan(0);
+    expect(g.totalProductSecurityFunding).toBe(arrival?.data.securityAllowanceK);
   });
 
   it('cuts upkeep when TM and requirements match a defense', () => {
@@ -45,6 +108,23 @@ describe('CISO engine invariants', () => {
     expect(aligned.getMaintenanceCost()).toBe(toolsUpkeep + identityDiscounted + grcDiscounted);
     const platform = raw.products.getLiveProducts()[0];
     expect(aligned.getMitigationEffectiveness('AUTH', platform)).toBeGreaterThan(raw.getMitigationEffectiveness('AUTH', platform));
+  });
+
+  it('compares net guidance cost with the same unguided control portfolio', () => {
+    const g = new GameEngine();
+    for (const [key, defense] of Object.entries(DEFENSES)) {
+      if (defense.type === 'capability') g.defenses[key] = 1;
+    }
+    g.defenses.threatModel = 1;
+    g.defenses.reqMgmt = 1;
+
+    const comparison = g.getGuidanceSavings();
+    expect(comparison.withoutGuidance).toBeGreaterThan(comparison.withGuidance);
+    expect(comparison.netSaved).toBe(comparison.withoutGuidance - comparison.withGuidance);
+
+    g.phase = 'budget';
+    g.endQuarter();
+    expect(g.totalGuidanceSavings).toBe(comparison.netSaved);
   });
 
   it('skips degradation on aligned defenses', () => {
@@ -75,6 +155,15 @@ describe('CISO engine invariants', () => {
     expect(g.quietStreak).toBe(0);
   });
 
+  it('ends the appointment when reputation reaches zero', () => {
+    const g = new GameEngine();
+    g.phase = 'report';
+    g.reputation = 0;
+    g.nextTurn();
+    expect(g.phase).toBe('gameover');
+    expect(g.getGrade()).toBe('F');
+  });
+
   it('gives more fix slots as staff and supervised agents grow', () => {
     const g = new GameEngine();
     g.defenses.reqMgmt = 1;
@@ -90,6 +179,20 @@ describe('CISO engine invariants', () => {
     g.defenses.secTeam = 3;
     expect(g.getSupervisedAgentCount()).toBe(2);
     expect(g.getFixCapacity()).toBe(3 + 2);
+  });
+
+  it('previews pending alert overload without weakening live controls early', () => {
+    const g = new GameEngine();
+    g.defenses.secTeam = 1;
+    g.defenses.endpoint = 1;
+    expect(g.getAlertOverflow(false)).toBe(0);
+    expect(g.getEffectiveDefenseLevel('endpoint')).toBe(1);
+
+    expect(g.queueUpgrade('siem')).toBe(true);
+    expect(g.queueUpgrade('appSec')).toBe(true);
+    expect(g.getAlertOverflow()).toBeGreaterThan(0);
+    expect(g.getAlertOverflow(false)).toBe(0);
+    expect(g.getEffectiveDefenseLevel('endpoint')).toBe(1);
   });
 
   it('does not attack products that are not live', () => {
@@ -248,5 +351,20 @@ describe('guidance leverage', () => {
     const report = g.getThreatModelReport();
     expect(report.level).toBe('active');
     expect(report.coveragePct).toBeGreaterThanOrEqual(0);
+  });
+
+  it('makes queued planning tools useful before quarter close', () => {
+    const g = new GameEngine();
+    expect(g.getThreatModelReport().level).toBe('none');
+
+    expect(g.queueUpgrade('threatModel')).toBe(true);
+    expect(g.getThreatModelReport().level).toBe('active');
+    expect(g.getVisibleWeaknesses(g.products.getLiveProducts()[0]).length).toBeGreaterThan(0);
+
+    expect(g.queueUpgrade('reqMgmt')).toBe(true);
+    expect(g.reqMgmtLevel).toBe(1);
+
+    g.cancelUpgrade('threatModel');
+    expect(g.getThreatModelReport().level).toBe('none');
   });
 });

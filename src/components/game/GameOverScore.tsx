@@ -5,30 +5,30 @@ export function GameOverScore() {
   const { game } = useGame();
   const b = game.getScoreBreakdown();
   const rows = [
-    { label: 'Still CISO', value: `+${b.survivalPts}`, hint: `${game.turn} quarters` },
-    { label: 'Company value', value: `+${b.valuationPts}`, hint: `$${(game.companyValue / 1000).toFixed(0)}M` },
-    { label: 'Reputation', value: `+${b.reputationPts}`, hint: `${game.reputation}/100` },
-    { label: 'Defense posture', value: `+${b.posturePts}`, hint: `${game.securityPosture}%` },
-    { label: 'Attacks stopped', value: `+${b.blockedPts}`, hint: `${game.totalBlocked} blocked`, tone: 'text-emerald-300' },
-    { label: 'Controls bought', value: `+${b.defensePts}` },
-    { label: 'Threat modeling and requirements', value: `+${b.toolPts}`, hint: 'Find the gaps + tell the team how', tone: 'text-brand' },
-    { label: 'Quiet quarters', value: `+${b.quietPts}`, hint: `${game.quietBonus} pts from calm quarters`, tone: 'text-emerald-300' },
-    { label: 'Breaches', value: `-${b.breachPenalty}`, hint: `${game.totalBreaches}`, tone: 'text-red-300' },
+    { label: 'Survived', value: `+${b.survivalPts}`, hint: `${game.turn}q` },
+    { label: 'Company value', value: `+${b.valuationPts}` },
+    { label: 'Trust', value: `+${b.reputationPts}` },
+    { label: 'Posture', value: `+${b.posturePts}` },
+    { label: 'Attacks stopped', value: `+${b.blockedPts}`, tone: 'text-emerald-600' },
+    { label: 'Controls', value: `+${b.defensePts}` },
+    { label: 'TM + requirements', value: `+${b.toolPts}`, tone: 'text-brand' },
+    { label: 'Quiet quarters', value: `+${b.quietPts}`, tone: 'text-emerald-600' },
+    { label: 'Breaches', value: `-${b.breachPenalty}`, tone: 'text-red-600' },
   ];
 
   return (
-    <GameSection title="How the grade was built" hint={`${b.total.toLocaleString()} pts · ${game.getGrade()}`}>
-      <div className="space-y-1.5 text-sm">
+    <GameSection title="Score breakdown" quiet>
+      <div className="space-y-1 text-sm">
         {rows.map(row => (
-          <div key={row.label} className="flex items-baseline gap-3">
-            <span className="flex-1">{row.label}</span>
-            {row.hint && <span className="text-muted-foreground text-sm">{row.hint}</span>}
-            <span className={`w-16 text-right font-bold tabular-nums ${row.tone || ''}`}>{row.value}</span>
+          <div key={row.label} className="flex items-baseline gap-2">
+            <span className="flex-1 text-muted-foreground">{row.label}</span>
+            {row.hint && <span className="text-xs text-muted-foreground">{row.hint}</span>}
+            <span className={`w-14 text-right font-bold tabular-nums ${row.tone || ''}`}>{row.value}</span>
           </div>
         ))}
-        <div className="flex items-baseline gap-3 pt-2 border-t border-border font-bold">
+        <div className="flex items-baseline gap-2 pt-1.5 border-t-2 border-dashed border-foreground/10 font-black">
           <span className="flex-1">Total</span>
-          <span className="tabular-nums">{b.total.toLocaleString()}</span>
+          <span className="tabular-nums">{b.total.toLocaleString()} · {game.getGrade()}</span>
         </div>
       </div>
     </GameSection>

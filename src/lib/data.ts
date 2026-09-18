@@ -190,18 +190,22 @@ export interface GameEvent {
 }
 
 export const EVENTS: GameEvent[] = [
-  { name: 'Board Demands Growth',     effect: 'budget_cut',       value: 15,  flavor: 'Board wants more R&D. Security budget cut 15%.', icon: '📉' },
-  { name: 'Competitor Breached',       effect: 'budget_boost',     value: 20,  flavor: 'Rival\'s breach makes headlines. Board approves 20% increase.', icon: '📰' },
-  { name: 'Series Funding',           effect: 'revenue_boost',     value: 25,  flavor: 'New funding round! Valuation jumps 25%.', icon: '💰' },
-  { name: 'Talent Shortage',          effect: 'cost_increase',     value: 20,  flavor: 'Security talent market tightens. Costs up.', icon: '🏷️' },
-  { name: 'Bug Bounty Win',           effect: 'reputation_boost',  value: 5,   flavor: 'Bug bounty catches critical vuln early.', icon: '🏆' },
-  { name: 'Customer Audit',           effect: 'compliance_test',   value: 2,   flavor: 'Enterprise customer demands security audit.', icon: '🔍' },
-  { name: 'Critical CVE Published',   effect: 'patch_urgency',     value: 2,   flavor: 'Critical CVE in a widely-used library.', icon: '🐛' },
-  { name: 'Quiet Quarter',            effect: 'none',              value: 0,   flavor: 'A rare calm quarter.', icon: '😌' },
-  { name: 'Acquisition Target',       effect: 'valuation_risk',    value: 30,  flavor: 'Acquiring a startup — valuation up, risk up.', icon: '🤝' },
-  { name: 'SEC Cyber Disclosure Rule', effect: 'compliance_test',  value: 3,   flavor: 'New SEC rules require material incident disclosure within 4 days.', icon: '⚖️' },
-  { name: 'Key Hire Poached',         effect: 'cost_increase',     value: 15,  flavor: 'Your CISO deputy was recruited away. Backfill costs spike.', icon: '💼' },
-  { name: 'Board Security Briefing',  effect: 'reputation_boost',  value: 3,   flavor: 'Board impressed by your quarterly risk briefing.', icon: '📊' },
+  { name: 'Board Demands Growth',     effect: 'budget_cut',       value: 15,  flavor: 'Marcus: "We need to invest in growth, not firewalls. Can\'t we just buy cyber insurance?" Victoria nods approvingly.', icon: '📉' },
+  { name: 'Competitor Breached',       effect: 'budget_boost',     value: 20,  flavor: 'Marcus bursts in: "Did you see?! Our competitor got hacked! We need MORE security! Whatever it costs!" Dev mutters: "Funny how that works."', icon: '📰' },
+  { name: 'Series Funding',           effect: 'revenue_boost',     value: 25,  flavor: 'Marcus is thrilled — new funding round! Victoria: "The board expects the valuation to hold. Don\'t let a breach ruin this." Dev: "More money, more attack surface."', icon: '💰' },
+  { name: 'Talent Shortage',          effect: 'cost_increase',     value: 20,  flavor: 'Dev: "Everyone good got poached by FAANG. The only résumé left lists \'proficient in Excel\' under security skills." Backfill costs spike.', icon: '🏷️' },
+  { name: 'Bug Bounty Win',           effect: 'reputation_boost',  value: 5,   flavor: 'A researcher found a critical vuln before the bad guys. Dev is delighted. Marcus: "Wait, we\'re PAYING people to hack us?!"', icon: '🏆' },
+  { name: 'Customer Audit',           effect: 'compliance_test',   value: 2,   flavor: 'Amara, barely containing her excitement: "Enterprise customer wants a full security audit! I\'ve been preparing for this my WHOLE CAREER." Marcus: "Can we just send them last year\'s?"', icon: '🔍' },
+  { name: 'Critical CVE Published',   effect: 'patch_urgency',     value: 2,   flavor: 'Dev, at 2 AM: "Critical CVE. It\'s in everything. EVERYTHING." Marcus, next morning: "Can\'t we just patch it next sprint?"', icon: '🐛' },
+  { name: 'Quiet Quarter',            effect: 'none',              value: 0,   flavor: 'Dev: "It\'s too quiet. I don\'t trust it." Amara: "I\'ll use this time to update the incident response policy." Marcus: "See? We don\'t even need all those tools!"', icon: '😌' },
+  { name: 'Acquisition Target',       effect: 'valuation_risk',    value: 30,  flavor: 'Marcus: "We\'re buying a startup! Valuation up 30%!" Dev: "Have we... looked at their security posture?" Marcus: "Their WHAT?"', icon: '🤝' },
+  { name: 'SEC Cyber Disclosure Rule', effect: 'compliance_test',  value: 3,   flavor: 'Amara slides a 40-page document across the table: "New SEC rules. Material incidents disclosed in 4 days. I have opinions." Victoria: "Just tell me we\'re compliant."', icon: '⚖️' },
+  { name: 'Key Hire Poached',         effect: 'cost_increase',     value: 15,  flavor: 'Your deputy got recruited away. Dev: "They offered them WHAT?!" Marcus: "Can\'t you just... do their job too? Temporarily?"', icon: '💼' },
+  { name: 'Board Security Briefing',  effect: 'reputation_boost',  value: 3,   flavor: 'Victoria, after your risk briefing: "Excellent presentation. Concise." Marcus: "I didn\'t understand any of it, but the board loved the graphs."', icon: '📊' },
+  { name: 'CEO Forwards Phishing',    effect: 'budget_cut',        value: 5,   flavor: 'Marcus forwarded a phishing email to all-staff asking "is this legit?" Dev is inconsolable. Amara is writing up the incident report. Victoria: "This never happened."', icon: '🎣' },
+  { name: 'MFA Resistance',           effect: 'cost_increase',     value: 10,  flavor: 'Marcus: "The investors hate MFA. Can\'t we just... turn it off for the C-suite?" Dev: "I am begging you." Amara adds it to the risk register.', icon: '🔐' },
+  { name: 'Intern USB Incident',      effect: 'patch_urgency',     value: 1,   flavor: 'An intern plugged in a USB they found in the parking lot. Dev: "WHO DOES THAT?!" Marcus: "They were just being resourceful." Amara: "Updating the acceptable use policy."', icon: '💾' },
+  { name: 'Sales Promises SOC 2',     effect: 'compliance_test',   value: 2,   flavor: 'Sales promised a customer SOC 2 compliance. By Friday. Amara: "We are NOT SOC 2 compliant." Marcus: "Can\'t you just... make us compliant by Friday?"', icon: '🤦' },
 ];
 
 export const MILESTONES = [

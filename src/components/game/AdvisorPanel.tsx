@@ -1,62 +1,45 @@
 import { useGame } from './GameContext';
-import { Button } from '@/components/ui/button';
 import { GameSection } from './GameSection';
 import { CiteLink } from './CiteLink';
-
-const LEVEL_LABELS: Record<string, string> = {
-  blind: 'By industry frequency',
-  aware: 'From your systems',
-  guided: 'With team instructions',
-  strategic: 'From assessment and instructions',
-};
+import { PersonaMessageInline } from './PersonaMessage';
+import { getLine } from '@/lib/personas';
 
 export function AdvisorPanel() {
   const { game, update } = useGame();
   const recs = game.getRecommendations();
-  const level = game.getAdvisorLevel();
-  const label = LEVEL_LABELS[level];
-
   if (recs.length === 0) return null;
 
+  const situation = game.threatModelLevel === 0 ? 'no_threat_model' : game.getAvailableBudget() < 100 ? 'budget_tight' : 'quarter_calm';
+  const quip = getLine('analyst', situation, game.turn);
+
   return (
-    <GameSection title="Suggested spend" help="advisor" hint={label} quiet dashed>
-      <p className="text-sm text-muted-foreground mb-2">
-        {level === 'blind'
-          ? 'Until you threat-model the systems, these extras follow industry frequency.'
-          : 'Live systems first. Pipeline only if production is covered.'}
-      </p>
-      <div className="space-y-2">
+    <GameSection title="🧠 Advice" quiet>
+      <PersonaMessageInline id="analyst" line={quip} />
+      <div className="space-y-2 mt-1">
         {recs.slice(0, 3).map((rec, i) => {
           const canAfford = rec.cost <= game.getAvailableBudget();
           const isInfo = rec.actionType === 'info';
           return (
-            <div key={i} className="flex items-center gap-3">
-              <span className="text-lg shrink-0">{rec.icon}</span>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium">{rec.title}</div>
-                <div className="text-sm text-muted-foreground">
-                  {rec.detail}
-                  {rec.sourceUrl && rec.sourceLabel && (
-                    <>
-                      {' '}
-                      <CiteLink href={rec.sourceUrl}>{rec.sourceLabel}</CiteLink>
-                    </>
-                  )}
-                </div>
+            <div key={i} className="py-2 border-b border-dashed border-foreground/10 last:border-0">
+              <div className="flex items-center gap-2">
+                <span className="text-lg shrink-0">{rec.icon}</span>
+                <div className="text-sm font-bold leading-tight flex-1 min-w-0">{rec.title}</div>
+                {!isInfo && rec.actionKey && (
+                  <button
+                    className="comic-btn comic-btn-action text-xs shrink-0 py-1 px-2 disabled:opacity-40"
+                    disabled={!canAfford || (rec.actionType === 'upgrade' && game.getUpgradeCost(rec.actionKey!) === null)}
+                    onClick={() => { if (rec.actionType === 'upgrade') game.queueUpgrade(rec.actionKey!); update(); }}
+                  >
+                    {(game.pendingUpgrades[rec.actionKey!] || 0) > 0 ? 'Queued ✓' : `$${rec.cost}K`}
+                  </button>
+                )}
               </div>
-              {!isInfo && rec.actionKey && (
-                <Button
-                  size="sm"
-                  className="shrink-0 h-10 text-sm"
-                  disabled={!canAfford || (rec.actionType === 'upgrade' && game.getUpgradeCost(rec.actionKey!) === null)}
-                  onClick={() => {
-                    if (rec.actionType === 'upgrade') game.queueUpgrade(rec.actionKey!);
-                    update();
-                  }}
-                >
-                  {rec.actionType === 'upgrade' && (game.pendingUpgrades[rec.actionKey!] || 0) > 0 ? 'Queued ✓' : `$${rec.cost}K`}
-                </Button>
-              )}
+              <div className="text-xs text-muted-foreground leading-snug mt-1">
+                {rec.detail}
+                {rec.sourceUrl && rec.sourceLabel && (
+                  <> <CiteLink href={rec.sourceUrl}>{rec.sourceLabel}</CiteLink></>
+                )}
+              </div>
             </div>
           );
         })}

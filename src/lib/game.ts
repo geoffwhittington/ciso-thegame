@@ -71,6 +71,8 @@ export class GameEngine {
   totalBlocked = 0;
   totalContained = 0;
   totalSpent = 0;
+  totalGuidanceSavings = 0;
+  totalProductSecurityFunding = 0;
   totalAttackCost = 0;
   totalAttacks = 0;
   blindSpotBreaches = 0;
@@ -109,7 +111,7 @@ export class GameEngine {
     for (const key of Object.keys(DEFENSES)) { this.defenses[key] = 0; }
     this.pendingUpgrades = {};
     this.totalBreaches = 0; this.totalBlocked = 0; this.totalContained = 0;
-    this.totalSpent = 0; this.totalAttackCost = 0; this.totalAttacks = 0; this.attackLog = []; this.turnLog = []; this.fullLog = [];
+    this.totalSpent = 0; this.totalGuidanceSavings = 0; this.totalProductSecurityFunding = 0; this.totalAttackCost = 0; this.totalAttacks = 0; this.attackLog = []; this.turnLog = []; this.fullLog = [];
     this.blindSpotBreaches = 0; this.blindSpotRepLost = 0;
     this.totalDegradationEvents = 0;
     this.degradationBreaches = 0; this.deploymentTurns = {};
@@ -123,30 +125,36 @@ export class GameEngine {
   }
 
   // ─── ALERT FATIGUE ─────────────────────────────────────
-  getAlertLoad(): number {
+  getAlertLoad(includePending = true): number {
     let load = 0;
     for (const [key, def] of Object.entries(DEFENSES)) {
-      const lvl = (this.defenses[key] || 0) + (this.pendingUpgrades[key] || 0);
+      const lvl = (this.defenses[key] || 0)
+        + (includePending ? (this.pendingUpgrades[key] || 0) : 0);
       load += lvl * def.alertLoad;
     }
     return load;
   }
 
-  getStaffCapacity(): number {
-    const staffLevel = this.getChampionCount();
-    const agentLevel = this.getSupervisedAgentCount();
+  getStaffCapacity(includePending = true): number {
+    const staffLevel = (this.defenses.secTeam || 0)
+      + (includePending ? (this.pendingUpgrades.secTeam || 0) : 0);
+    const rawAgents = (this.defenses.secAgents || 0)
+      + (includePending ? (this.pendingUpgrades.secAgents || 0) : 0);
+    const agentLevel = Math.min(rawAgents, Math.max(0, staffLevel - 1));
     const agentBonus = agentLevel * 4;
     return staffLevel * STAFF_CAPACITY_PER_LEVEL + agentBonus;
   }
 
-  getAlertOverflow(): number {
-    return Math.max(0, this.getAlertLoad() - this.getStaffCapacity());
+  getAlertOverflow(includePending = true): number {
+    return Math.max(0, this.getAlertLoad(includePending) - this.getStaffCapacity(includePending));
   }
 
   hasOpsPenalty(key: string): boolean {
     const def = DEFENSES[key];
     const degraded = this.quarterDegradations.some(d => d.key === key);
-    const overflow = !!def && def.alertLoad > 0 && this.getAlertOverflow() > 0;
+    // Shopping should preview future overload without weakening controls that
+    // are currently live. At quarter close, pending levels are committed first.
+    const overflow = !!def && def.alertLoad > 0 && this.getAlertOverflow(false) > 0;
     return degraded || overflow;
   }
 
@@ -227,8 +235,15 @@ export class GameEngine {
   }
 
   // ─── VISIBILITY ────────────────────────────────────────
-  get threatModelLevel() { return this.defenses.threatModel || 0; }
-  get reqMgmtLevel() { return this.defenses.reqMgmt || 0; }
+  // Planning capabilities are useful as soon as they are queued. This lets the
+  // player inspect findings and act on them before committing the quarter.
+  // The purchase is still cancellable and becomes permanently owned at close.
+  get threatModelLevel() {
+    return (this.defenses.threatModel || 0) + (this.pendingUpgrades.threatModel || 0);
+  }
+  get reqMgmtLevel() {
+    return (this.defenses.reqMgmt || 0) + (this.pendingUpgrades.reqMgmt || 0);
+  }
 
   // Visibility rate varies by threat category.
   // OWASP (traditional web) threats are well-understood — easier to identify at lower TM levels.
@@ -313,10 +328,20 @@ export class GameEngine {
   }
 
   // ─── BUDGET ────────────────────────────────────────────
+  getRevenueBasedBudget(): number {
+    return Math.round(
+      (this.revenue + this.products.getTotalRevenue()) * budgetRate(this.reputation),
+    );
+  }
+
+  getProductRiskBudget(): number {
+    return this.products.active.reduce((sum, product) => sum + product.risk * 5, 0);
+  }
+
   _calcBudget() {
-    // Security budget ~3.5–4% of quarterly revenue at starting reputation. Enough for a starter program, not the full catalog.
-    const pct = budgetRate(this.reputation);
-    this.quarterlyBudget = Math.round((this.revenue + this.products.getTotalRevenue()) * pct);
+    // Revenue funds the base program. Every active product adds risk-based
+    // funding, including internal and pre-launch products with no revenue.
+    this.quarterlyBudget = this.getRevenueBasedBudget() + this.getProductRiskBudget();
   }
 
   getRunCostBreakdown(includePending = false): {
@@ -341,6 +366,32 @@ export class GameEngine {
 
   getMaintenanceCost(): number {
     return this.getRunCostBreakdown(false).total;
+  }
+
+  getGuidanceSavings(includePending = false): {
+    withGuidance: number;
+    withoutGuidance: number;
+    planningCost: number;
+    controlSavings: number;
+    netSaved: number;
+  } {
+    let withoutGuidance = 0;
+    let planningCost = 0;
+    for (const [key, def] of Object.entries(DEFENSES)) {
+      const level = (this.defenses[key] || 0)
+        + (includePending ? (this.pendingUpgrades[key] || 0) : 0);
+      if (def.type === 'capability') withoutGuidance += level * def.maintainCost;
+      else planningCost += level * def.maintainCost;
+    }
+    const withGuidance = this.getRunCostBreakdown(includePending).total;
+    const controlSavings = withoutGuidance - (withGuidance - planningCost);
+    return {
+      withGuidance,
+      withoutGuidance,
+      planningCost,
+      controlSavings,
+      netSaved: controlSavings - planningCost,
+    };
   }
 
   getAvailableBudget(): number {
@@ -390,7 +441,7 @@ export class GameEngine {
 
   /** Risks staff will close this quarter. Needs Execute (reqMgmt). 1 per champion + 1 per supervised agent. */
   getFixCapacity(): number {
-    if ((this.reqMgmtLevel || 0) + (this.pendingUpgrades.reqMgmt || 0) <= 0) return 0;
+    if (this.reqMgmtLevel <= 0) return 0;
     return this.getChampionCount() + this.getSupervisedAgentCount() * AGENT_FIX_SLOTS_PER_LEVEL;
   }
 
@@ -463,6 +514,7 @@ export class GameEngine {
     this.quarterDegradations = [];
 
     const spent = this.getMaintenanceCost() + this._pendingUpgradeCost();
+    this.totalGuidanceSavings += this.getGuidanceSavings(false).netSaved;
     const leftover = this.getAvailableBudget();
     this.treasury = Math.max(0, Math.min(leftover, Math.round(this.quarterlyBudget * UNUSED_CARRY_PCT)));
     this.totalSpent += spent;
@@ -505,7 +557,17 @@ export class GameEngine {
     this.turnLog.push({ type: 'event', data: this._rollEvent() });
 
     for (const pe of this.products.tick(this.turn + 1)) {
-      this.turnLog.push({ type: pe.type, data: pe.product });
+      if (pe.type === 'product_arrived') {
+        const allowance = pe.product.securityAllowanceK;
+        this.treasury += allowance;
+        this.totalProductSecurityFunding += allowance;
+        this.turnLog.push({
+          type: pe.type,
+          data: { ...pe.product, securityAllowanceK: allowance },
+        });
+      } else {
+        this.turnLog.push({ type: pe.type, data: pe.product });
+      }
     }
 
     this._applyGrowth();

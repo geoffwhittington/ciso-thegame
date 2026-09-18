@@ -21,6 +21,8 @@ export function snapshotGame(game: GameEngine) {
     totalBlocked: game.totalBlocked,
     totalContained: game.totalContained,
     totalSpent: game.totalSpent,
+    totalGuidanceSavings: game.totalGuidanceSavings,
+    totalProductSecurityFunding: game.totalProductSecurityFunding,
     totalAttackCost: game.totalAttackCost,
     totalAttacks: game.totalAttacks,
     blindSpotBreaches: game.blindSpotBreaches,
@@ -57,6 +59,8 @@ export function applySnapshot(game: GameEngine, snap: ReturnType<typeof snapshot
   game.totalBlocked = snap.totalBlocked ?? 0;
   game.totalContained = snap.totalContained ?? 0;
   game.totalSpent = snap.totalSpent ?? 0;
+  game.totalGuidanceSavings = snap.totalGuidanceSavings ?? 0;
+  game.totalProductSecurityFunding = snap.totalProductSecurityFunding ?? 0;
   game.totalAttackCost = snap.totalAttackCost ?? 0;
   game.totalAttacks = snap.totalAttacks ?? 0;
   game.blindSpotBreaches = snap.blindSpotBreaches ?? 0;
