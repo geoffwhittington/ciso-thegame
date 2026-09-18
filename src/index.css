@@ -264,9 +264,9 @@
 
 /* Sticky header bar */
 .comic-sticky-header {
-  background: #fff8dc;
+  background: #dff3f8;
   border-bottom: 3px solid #1a1a2e;
-  box-shadow: 0 3px 0 rgba(26, 26, 46, 0.1);
+  box-shadow: 0 3px 0 rgba(26, 26, 46, 0.16);
 }
 
 /* Slight paper texture on cards */

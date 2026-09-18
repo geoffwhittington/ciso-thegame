@@ -11,6 +11,7 @@ import { EndQuarterConfirm } from './EndQuarterConfirm';
 import { DashboardTabs, type TabId } from './DashboardTabs';
 import { useGame } from './GameContext';
 import { FlashOnChange } from './motion';
+import { BoardPulse } from './BoardPulse';
 
 export function Dashboard() {
   const { game } = useGame();
@@ -25,15 +26,24 @@ export function Dashboard() {
 
   return (
     <div className="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8 pb-8">
-      {/* Sticky header: budget + quarter + end quarter */}
+      {/* Sticky command banner */}
       <div className="comic-sticky-header sticky top-0 z-20 -mx-3 sm:-mx-6 lg:-mx-8 px-3 sm:px-6 lg:px-8 py-2 mb-2">
         <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2 shrink-0">
+            <span className="text-2xl" aria-hidden>🛡️</span>
+            <div>
+              <div className="comic-heading text-lg leading-none">CISO</div>
+              <div className="text-xs font-bold text-muted-foreground">{game.getRoleLabel()}</div>
+            </div>
+          </div>
           <div className="min-w-0 flex-1">
+            <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Available budget</div>
             <div className={`text-lg font-black tabular-nums leading-tight comic-heading ${avail < 0 ? 'text-red-600' : avail < 100 ? 'text-yellow-600' : 'text-emerald-600'}`}>
               <FlashOnChange value={avail}>${avail}K</FlashOnChange>
               <span className="ml-1.5 text-xs font-bold text-muted-foreground">{game.getCalendarQuarter()}</span>
             </div>
           </div>
+          <BoardPulse reputation={game.reputation} />
           <EndQuarterConfirm />
         </div>
       </div>

@@ -2,7 +2,7 @@ import { AVATARS, type AvatarId } from './avatars';
 
 export function Avatar({ id, size = 'md', showName }: { id: AvatarId; size?: 'sm' | 'md' | 'lg'; showName?: boolean }) {
   const a = AVATARS[id];
-  const px = size === 'sm' ? 'w-10 h-10' : size === 'lg' ? 'w-16 h-16' : 'w-12 h-12';
+  const px = size === 'sm' ? 'w-12 h-12' : size === 'lg' ? 'w-20 h-20' : 'w-16 h-16';
   return (
     <div className="flex items-center gap-2">
       <img

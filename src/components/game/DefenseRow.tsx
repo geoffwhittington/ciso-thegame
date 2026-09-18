@@ -37,25 +37,23 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
   const cap = game.getLevelCap(defKey);
   const canAdd = eff < cap && relevant;
   const atCap = eff >= cap;
-  const tmSoon = (game.defenses.threatModel || 0) + (game.pendingUpgrades.threatModel || 0);
-  const rmSoon = (game.defenses.reqMgmt || 0) + (game.pendingUpgrades.reqMgmt || 0);
   const afterQuarter = level + pending;
-  const alignedSoon = Math.min(tmSoon, rmSoon);
-  const rmAligned = !isTool && alignedSoon > 0 && afterQuarter > 0 && alignedSoon >= afterQuarter;
   const need = !isTool ? game.getAnticipatedNeed(defKey) : 0;
   const recommended = relevant && game.threatModelLevel > 0 && need > eff;
-  const accent = pending ? 'border-l-4 border-l-brand pl-2 -ml-2' : recommended ? 'border-l-4 border-l-amber-400 pl-2 -ml-2' : '';
 
   return (
-    <div className={`${!relevant ? 'opacity-25' : ''} ${accent}`}>
-      <div className="flex items-center gap-2 py-2.5 border-b-2 border-dashed border-border/20">
+    <div className={`${!relevant ? 'opacity-25' : ''}`}>
+      <div className={`flex items-center gap-2 py-2.5 border-b-2 border-dashed border-border/20 ${pending ? 'bg-yellow-50/60' : ''}`}>
         <button className="text-muted-foreground hover:text-foreground text-base shrink-0 font-bold" onClick={() => setShowHelp(!showHelp)} aria-label="What is this">
           {showHelp ? '✕' : 'ⓘ'}
         </button>
         <span className="text-lg shrink-0 w-7 text-center">{def.icon}</span>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
             <span className="font-bold text-sm truncate">{def.name}</span>
+            {eff > 0 && (
+              <span className="comic-badge comic-badge-owned text-[10px] shrink-0">Lv{eff}</span>
+            )}
             {isTool && pending > 0 && (
               <span className="comic-badge comic-badge-green text-[10px] shrink-0">
                 Findings live
@@ -80,25 +78,18 @@ export function DefenseRow({ defKey, def, game, update, relevant }: {
             </div>
           )}
           {!isTool && level > 0 && !opsHit && game.getGuidanceLevel() <= 0 && (
-            <div className="text-xs text-muted-foreground">Generic coverage. Industry residual.</div>
+            <div className="text-xs text-muted-foreground">Generic coverage</div>
           )}
-        </div>
-        <div className="hidden sm:flex gap-1 shrink-0">
-          {Array.from({ length: cap }, (_, i) => (
-            <div
-              key={i}
-              className={`h-3 w-3 rounded-full border-2 border-foreground/30 ${dotShade(i, level, pending, cap, rmAligned)} ${recommended && i >= eff && i < need ? 'ring-2 ring-amber-400' : ''}`}
-            />
-          ))}
         </div>
         {!atCap || pending > 0 ? (
           <div className={`flex items-stretch border-3 border-foreground/20 rounded-lg overflow-hidden shrink-0 ${!canAfford && pending === 0 ? 'opacity-40' : ''}`}>
-            <button
-              className="w-11 min-h-[44px] text-lg font-black text-red-500 hover:bg-red-100 disabled:opacity-20"
-              disabled={pending <= 0}
-              onClick={() => { game.cancelUpgrade(defKey); update(); }}
-              aria-label="Undo last add"
-            >−</button>
+            {pending > 0 && (
+              <button
+                className="w-11 min-h-[44px] text-lg font-black text-red-500 hover:bg-red-100"
+                onClick={() => { game.cancelUpgrade(defKey); update(); }}
+                aria-label="Undo last add"
+              >−</button>
+            )}
             <div className="px-2 sm:px-2.5 py-1.5 min-w-[6rem] sm:min-w-[8rem] text-center leading-tight bg-card">
               {pending > 0 ? (
                 <>
@@ -188,26 +179,17 @@ function workingLine(opts: {
   missing: string[];
 }): string {
   const { setbackText, alertOverload, owned, working, missing } = opts;
-  const effect = working === 0 ? 'Not stopping attacks this quarter.' : 'Runs one level weaker this quarter.';
   if (setbackText && alertOverload) {
-    return `${setbackText} Also more alerts than staff can handle. ${effect} Hire staff.`;
+    return `Operational issue + alert overload — Lv${working} effective this quarter.`;
   }
-  if (setbackText) return `${setbackText} ${effect}`;
+  if (setbackText) return `${setbackText} Lv${working} effective this quarter.`;
   if (alertOverload) {
     return working === 0
-      ? 'More alerts than staff can handle. Not stopping attacks this quarter. Hire Security Staff.'
-      : 'More alerts than staff can handle. Runs one level weaker until you hire Security Staff.';
+      ? 'No staff capacity — ineffective this quarter.'
+      : `Alert overload — reduced to Lv${working}.`;
   }
   if (missing.length > 0) {
-    return `Needs ${missing.join(', ')}. Only ${working} of ${owned} ${owned === 1 ? 'is' : 'are'} working.`;
+    return `Needs ${missing.join(', ')} — Lv${working} of Lv${owned} effective.`;
   }
-  return `Only ${working} of ${owned} ${owned === 1 ? 'is' : 'are'} working.`;
-}
-
-function dotShade(i: number, owned: number, pending: number, cap: number, rmAligned: boolean): string {
-  const stacked = owned + pending;
-  if (rmAligned && stacked >= cap && i === cap - 1) return 'bg-cyan-400';
-  if (i < owned) return 'bg-brand';
-  if (i < stacked) return 'bg-yellow-400';
-  return 'bg-muted/40';
+  return `Lv${working} of Lv${owned} effective.`;
 }

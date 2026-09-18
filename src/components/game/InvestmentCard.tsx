@@ -21,18 +21,32 @@ export const INVESTMENT_CATEGORIES: InvestmentCategory[] = [
   { id: 'ai', icon: '🤖', title: 'AI Security', question: 'Are the robots under control?', quip: "Dev: Giving agents production access without guardrails. Bold. Terrible, but bold.", keys: ['aiSecurity'] },
 ];
 
-function categoryStatus(keys: string[], game: GameEngine): { deployed: number; total: number; spend: number; color: string; label: string } {
+function categoryStatus(keys: string[], game: GameEngine): {
+  deployed: number;
+  total: number;
+  spend: number;
+  hasPending: boolean;
+  label: string;
+} {
   let deployed = 0;
   let spend = 0;
+  let level = 0;
+  let hasPending = false;
   for (const k of keys) {
-    const lvl = (game.defenses[k] || 0) + (game.pendingUpgrades[k] || 0);
+    const pending = game.pendingUpgrades[k] || 0;
+    const lvl = (game.defenses[k] || 0) + pending;
     if (lvl > 0) deployed++;
+    level += lvl;
+    if (pending > 0) hasPending = true;
     spend += lvl * (DEFENSES[k]?.maintainCost || 0);
   }
   const total = keys.length;
-  const color = deployed === 0 ? 'stat-card-coral' : deployed < total ? 'stat-card-yellow' : 'stat-card-green';
-  const label = deployed === 0 ? 'Not deployed' : deployed < total ? `${deployed}/${total} active` : 'All active';
-  return { deployed, total, spend, color, label };
+  const label = deployed === 0
+    ? 'Nothing bought'
+    : total === 1
+      ? `Level ${level}`
+      : `${deployed}/${total} bought`;
+  return { deployed, total, spend, hasPending, label };
 }
 
 function categorySummary(keys: string[], game: GameEngine): string {
@@ -62,13 +76,21 @@ export function InvestmentCard({ category, game, update, relevant }: {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full text-left px-3 sm:px-4 py-3 flex items-center gap-3 min-h-[56px]"
+        className={`w-full text-left px-3 sm:px-4 py-3 flex items-center gap-3 min-h-[56px] transition-colors ${
+          open ? 'bg-[#dff3f8]' : ''
+        }`}
       >
         <span className="text-xl shrink-0">{category.icon}</span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-black comic-heading text-sm">{category.title}</span>
-            <span className={`comic-badge text-[9px] ${status.deployed === 0 ? 'comic-badge-neutral' : status.deployed < status.total ? 'comic-badge-yellow' : 'comic-badge-green'}`}>
+            <span className={`font-black comic-heading text-sm ${open ? 'text-brand' : ''}`}>{category.title}</span>
+            <span className={`comic-badge text-[9px] ${
+              status.deployed === 0
+                ? 'comic-badge-neutral'
+                : status.hasPending
+                  ? 'comic-badge-yellow'
+                  : 'comic-badge-owned'
+            }`}>
               {status.label}
             </span>
           </div>
